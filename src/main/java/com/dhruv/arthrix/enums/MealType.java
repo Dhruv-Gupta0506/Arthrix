@@ -1,4 +1,8 @@
 package com.dhruv.arthrix.enums;
 
-public class MealType {
+public enum MealType {
+    BREAKFAST,
+    SNACKS,
+    LUNCH,
+    DINNER
 }

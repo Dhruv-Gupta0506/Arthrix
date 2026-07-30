@@ -1,4 +1,6 @@
 package com.dhruv.arthrix.enums;
 
-public class DietPreference {
+public enum DietPreference {
+    VEG,
+    NON_VEG
 }

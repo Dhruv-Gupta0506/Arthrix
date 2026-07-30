@@ -1,4 +1,7 @@
 package com.dhruv.arthrix.enums;
 
-public class FitnessGoal {
+public enum FitnessGoal {
+    LOSE_FAT,
+    MAINTAIN,
+    GAIN_MUSCLE
 }

@@ -1,4 +1,7 @@
 package com.dhruv.arthrix.enums;
 
-public class Difficulty {
+public enum Difficulty {
+    BEGINNER,
+    INTERMEDIATE,
+    ADVANCED
 }
