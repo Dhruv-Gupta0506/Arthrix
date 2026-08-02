@@ -15,25 +15,26 @@ import java.util.List;
 @RestController
 @RequestMapping("/api/meals")
 public class MealController {
+
     private final MealService mealService;
 
     @Autowired
-    public MealController(MealService mealService){
-        this.mealService=mealService;
+    public MealController(MealService mealService) {
+        this.mealService = mealService;
     }
 
     @GetMapping
-    public ResponseEntity<ApiResponse<List<MealDTO>>> getAllMeals(){
-        List<MealDTO> meals=mealService.getAllMeals();
-        ApiResponse<List<MealDTO>> response=ApiResponse.success("Meals fetched successfully",meals);
+    public ResponseEntity<ApiResponse<List<MealDTO>>> getAllMeals() {
+        List<MealDTO> meals = mealService.getAllMeals();
+        ApiResponse<List<MealDTO>> response = ApiResponse.success("Meals fetched successfully", meals);
         return new ResponseEntity<>(response, HttpStatus.OK);
     }
 
     @GetMapping("/{mealId}")
-    public ResponseEntity<ApiResponse<MealDTO>> getMealById(@PathVariable Long mealId){
-        MealDTO meal=mealService.getMealById(mealId);
-        ApiResponse<MealDTO> response=ApiResponse.success("Meal fetched successfully",meal);
-        return new ResponseEntity<>(response,HttpStatus.OK);
+    public ResponseEntity<ApiResponse<MealDTO>> getMealById(@PathVariable Long mealId) {
+        MealDTO meal = mealService.getMealById(mealId);
+        ApiResponse<MealDTO> response = ApiResponse.success("Meal fetched successfully", meal);
+        return new ResponseEntity<>(response, HttpStatus.OK);
     }
 
     @GetMapping("/filter")
@@ -43,6 +44,13 @@ public class MealController {
 
         List<MealDTO> meals = mealService.getMealsByDietPreferenceAndMealType(dietPreference, mealType);
         ApiResponse<List<MealDTO>> response = ApiResponse.success("Filtered meals fetched successfully", meals);
+        return new ResponseEntity<>(response, HttpStatus.OK);
+    }
+
+    @PostMapping("/sync-external")
+    public ResponseEntity<ApiResponse<Void>> syncMealsFromExternalApi() {
+        mealService.syncMealsFromExternalApi();
+        ApiResponse<Void> response = ApiResponse.success("Meals synced from external API successfully", null);
         return new ResponseEntity<>(response, HttpStatus.OK);
     }
 }

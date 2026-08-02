@@ -9,6 +9,8 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
+import java.util.List;
+
 @Entity
 @Table(name="users")
 @Getter
@@ -46,5 +48,22 @@ public class User {
 
     @Enumerated(EnumType.STRING)
     private FitnessGoal fitnessGoal;
+
+    @ManyToMany
+    @JoinTable(
+            name = "user_favorite_workouts",
+            joinColumns = @JoinColumn(name = "user_id"),
+            inverseJoinColumns = @JoinColumn(name = "workout_id")
+    )
+
+    private List<Workout> favoriteWorkouts;
+
+    @ManyToMany
+    @JoinTable(
+            name = "user_favorite_meals",
+            joinColumns = @JoinColumn(name = "user_id"),
+            inverseJoinColumns = @JoinColumn(name = "meal_id")
+    )
+    private List<Meal> favoriteMeals;
 
 }

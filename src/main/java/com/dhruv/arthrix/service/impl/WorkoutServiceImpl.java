@@ -1,5 +1,7 @@
 package com.dhruv.arthrix.service.impl;
 
+import com.dhruv.arthrix.client.ExerciseClient;
+import com.dhruv.arthrix.dto.external.WgerExerciseResponse;
 import com.dhruv.arthrix.dto.response.WorkoutDTO;
 import com.dhruv.arthrix.entity.Workout;
 import com.dhruv.arthrix.enums.Difficulty;
@@ -18,10 +20,12 @@ import java.util.stream.Collectors;
 public class WorkoutServiceImpl implements WorkoutService {
 
     private final WorkoutRepository workoutRepository;
+    private final ExerciseClient exerciseClient;
 
     @Autowired
-    public WorkoutServiceImpl(WorkoutRepository workoutRepository) {
+    public WorkoutServiceImpl(WorkoutRepository workoutRepository, ExerciseClient exerciseClient) {
         this.workoutRepository = workoutRepository;
+        this.exerciseClient = exerciseClient;
     }
 
     @Override
@@ -45,5 +49,35 @@ public class WorkoutServiceImpl implements WorkoutService {
         return workouts.stream()
                 .map(WorkoutMapper::toDTO)
                 .collect(Collectors.toList());
+    }
+
+    @Override
+    public void syncWorkoutsFromExternalApi() {
+        List<WgerExerciseResponse.WgerExerciseResult> results = exerciseClient.fetchAllExercises();
+
+        for (WgerExerciseResponse.WgerExerciseResult result : results) {
+            String englishName = null;
+            String englishDescription = null;
+
+            for (WgerExerciseResponse.WgerTranslation translation : result.getTranslations()) {
+                if (translation.getLanguage() == 2) {
+                    englishName = translation.getName();
+                    englishDescription = translation.getDescription();
+                    break;
+                }
+            }
+
+            if (englishName == null || englishName.isBlank()) {
+                continue;
+            }
+
+            Workout workout = new Workout();
+            workout.setName(englishName);
+            workout.setDescription(englishDescription);
+            workout.setDifficulty(Difficulty.BEGINNER);
+            workout.setFitnessGoal(FitnessGoal.MAINTAIN);
+
+            workoutRepository.save(workout);
+        }
     }
 }

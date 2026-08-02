@@ -1,24 +1,39 @@
 package com.dhruv.arthrix.service.impl;
 
 import com.dhruv.arthrix.dto.request.UpdateProfileRequest;
+import com.dhruv.arthrix.dto.response.MealDTO;
 import com.dhruv.arthrix.dto.response.UserProfileDTO;
+import com.dhruv.arthrix.dto.response.WorkoutDTO;
+import com.dhruv.arthrix.entity.Meal;
 import com.dhruv.arthrix.entity.User;
+import com.dhruv.arthrix.entity.Workout;
 import com.dhruv.arthrix.enums.Gender;
 import com.dhruv.arthrix.exception.ResourceNotFoundException;
+import com.dhruv.arthrix.mapper.MealMapper;
 import com.dhruv.arthrix.mapper.UserMapper;
+import com.dhruv.arthrix.mapper.WorkoutMapper;
+import com.dhruv.arthrix.repository.MealRepository;
 import com.dhruv.arthrix.repository.UserRepository;
+import com.dhruv.arthrix.repository.WorkoutRepository;
 import com.dhruv.arthrix.service.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+
+import java.util.List;
+import java.util.stream.Collectors;
 
 @Service
 public class UserServiceImpl implements UserService {
 
     private final UserRepository userRepository;
+    private final WorkoutRepository workoutRepository;
+    private final MealRepository mealRepository;
 
     @Autowired
-    public UserServiceImpl(UserRepository userRepository) {
+    public UserServiceImpl(UserRepository userRepository, WorkoutRepository workoutRepository, MealRepository mealRepository) {
         this.userRepository = userRepository;
+        this.workoutRepository = workoutRepository;
+        this.mealRepository = mealRepository;
     }
 
     @Override
@@ -74,5 +89,73 @@ public class UserServiceImpl implements UserService {
                 .orElseThrow(() -> new ResourceNotFoundException("User not found with id: " + userId));
 
         return user.getWeight() * 1.6;
+    }
+
+    @Override
+    public void addFavoriteWorkout(Long userId, Long workoutId) {
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new ResourceNotFoundException("User not found with id: " + userId));
+
+        Workout workout = workoutRepository.findById(workoutId)
+                .orElseThrow(() -> new ResourceNotFoundException("Workout not found with id: " + workoutId));
+
+        user.getFavoriteWorkouts().add(workout);
+        userRepository.save(user);
+    }
+
+    @Override
+    public void removeFavoriteWorkout(Long userId, Long workoutId) {
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new ResourceNotFoundException("User not found with id: " + userId));
+
+        Workout workout = workoutRepository.findById(workoutId)
+                .orElseThrow(() -> new ResourceNotFoundException("Workout not found with id: " + workoutId));
+
+        user.getFavoriteWorkouts().remove(workout);
+        userRepository.save(user);
+    }
+
+    @Override
+    public List<WorkoutDTO> getFavoriteWorkouts(Long userId) {
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new ResourceNotFoundException("User not found with id: " + userId));
+
+        return user.getFavoriteWorkouts().stream()
+                .map(WorkoutMapper::toDTO)
+                .collect(Collectors.toList());
+    }
+
+    @Override
+    public void addFavoriteMeal(Long userId, Long mealId) {
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new ResourceNotFoundException("User not found with id: " + userId));
+
+        Meal meal = mealRepository.findById(mealId)
+                .orElseThrow(() -> new ResourceNotFoundException("Meal not found with id: " + mealId));
+
+        user.getFavoriteMeals().add(meal);
+        userRepository.save(user);
+    }
+
+    @Override
+    public void removeFavoriteMeal(Long userId, Long mealId) {
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new ResourceNotFoundException("User not found with id: " + userId));
+
+        Meal meal = mealRepository.findById(mealId)
+                .orElseThrow(() -> new ResourceNotFoundException("Meal not found with id: " + mealId));
+
+        user.getFavoriteMeals().remove(meal);
+        userRepository.save(user);
+    }
+
+    @Override
+    public List<MealDTO> getFavoriteMeals(Long userId) {
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new ResourceNotFoundException("User not found with id: " + userId));
+
+        return user.getFavoriteMeals().stream()
+                .map(MealMapper::toDTO)
+                .collect(Collectors.toList());
     }
 }

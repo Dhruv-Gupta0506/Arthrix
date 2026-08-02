@@ -9,11 +9,11 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 @Entity
-@Table(name ="workouts")
+@Table(name = "workouts")
 @Getter
 @Setter
-@AllArgsConstructor
 @NoArgsConstructor
+@AllArgsConstructor
 public class Workout {
 
     @Id
@@ -23,15 +23,16 @@ public class Workout {
     @Column(nullable = false)
     private String name;
 
+    @Column(columnDefinition = "TEXT")
     private String description;
-
-    private Integer durationMinutes;
-
-    private Integer estimatedCaloriesBurned;
 
     @Enumerated(EnumType.STRING)
     private Difficulty difficulty;
 
     @Enumerated(EnumType.STRING)
     private FitnessGoal fitnessGoal;
+
+    private Integer durationMinutes;
+
+    private Integer estimatedCaloriesBurned;
 }

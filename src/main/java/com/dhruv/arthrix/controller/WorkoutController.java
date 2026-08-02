@@ -13,28 +13,28 @@ import org.springframework.web.bind.annotation.*;
 import java.util.List;
 
 @RestController
-@RequestMapping("api/workouts")
+@RequestMapping("/api/workouts")
 public class WorkoutController {
 
     private final WorkoutService workoutService;
 
     @Autowired
-    public WorkoutController(WorkoutService workoutService){
-        this.workoutService=workoutService;
+    public WorkoutController(WorkoutService workoutService) {
+        this.workoutService = workoutService;
     }
 
     @GetMapping
-    public ResponseEntity<ApiResponse<List<WorkoutDTO>>> getAllWorkouts(){
-        List<WorkoutDTO> workouts=workoutService.getAllWorkouts();
-        ApiResponse<List<WorkoutDTO>> response=ApiResponse.success("Workouts fetched successfully",workouts);
+    public ResponseEntity<ApiResponse<List<WorkoutDTO>>> getAllWorkouts() {
+        List<WorkoutDTO> workouts = workoutService.getAllWorkouts();
+        ApiResponse<List<WorkoutDTO>> response = ApiResponse.success("Workouts fetched successfully", workouts);
         return new ResponseEntity<>(response, HttpStatus.OK);
     }
 
     @GetMapping("/{workoutId}")
-    public ResponseEntity<ApiResponse<WorkoutDTO>> getWorkoutById(@PathVariable Long workoutId){
-        WorkoutDTO workout=workoutService.getWorkoutById(workoutId);
-        ApiResponse<WorkoutDTO> response=ApiResponse.success("Workout fetched successfully",workout);
-        return new ResponseEntity<>(response,HttpStatus.OK);
+    public ResponseEntity<ApiResponse<WorkoutDTO>> getWorkoutById(@PathVariable Long workoutId) {
+        WorkoutDTO workout = workoutService.getWorkoutById(workoutId);
+        ApiResponse<WorkoutDTO> response = ApiResponse.success("Workout fetched successfully", workout);
+        return new ResponseEntity<>(response, HttpStatus.OK);
     }
 
     @GetMapping("/filter")
@@ -44,6 +44,13 @@ public class WorkoutController {
 
         List<WorkoutDTO> workouts = workoutService.getWorkoutsByGoalAndDifficulty(goal, difficulty);
         ApiResponse<List<WorkoutDTO>> response = ApiResponse.success("Filtered workouts fetched successfully", workouts);
+        return new ResponseEntity<>(response, HttpStatus.OK);
+    }
+
+    @PostMapping("/sync-external")
+    public ResponseEntity<ApiResponse<Void>> syncWorkoutsFromExternalApi() {
+        workoutService.syncWorkoutsFromExternalApi();
+        ApiResponse<Void> response = ApiResponse.success("Workouts synced from external API successfully", null);
         return new ResponseEntity<>(response, HttpStatus.OK);
     }
 }

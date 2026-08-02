@@ -9,8 +9,7 @@ import java.util.List;
 public interface MealService {
 
     List<MealDTO> getAllMeals();
-
     MealDTO getMealById(Long mealId);
-
-    List<MealDTO> getMealsByDietPreferenceAndMealType(DietPreference dietPreference , MealType mealType);
+    List<MealDTO> getMealsByDietPreferenceAndMealType(DietPreference dietPreference, MealType mealType);
+    void syncMealsFromExternalApi();
 }

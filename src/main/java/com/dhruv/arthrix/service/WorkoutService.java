@@ -9,8 +9,7 @@ import java.util.List;
 public interface WorkoutService {
 
     List<WorkoutDTO> getAllWorkouts();
-
     WorkoutDTO getWorkoutById(Long workoutId);
-
     List<WorkoutDTO> getWorkoutsByGoalAndDifficulty(FitnessGoal goal, Difficulty difficulty);
+    void syncWorkoutsFromExternalApi();
 }
