@@ -9,6 +9,7 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
+import java.time.LocalDate;
 import java.util.List;
 
 @Entity
@@ -65,5 +66,8 @@ public class User {
             inverseJoinColumns = @JoinColumn(name = "meal_id")
     )
     private List<Meal> favoriteMeals;
+
+    private Integer currentStreak = 0;
+    private LocalDate lastStreakDate;
 
 }
