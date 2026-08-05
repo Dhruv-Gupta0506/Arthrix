@@ -9,4 +9,7 @@ import java.util.List;
 public interface UserDailyChallengeRepository extends JpaRepository<UserDailyChallenge, Long> {
 
     List<UserDailyChallenge> findByUserIdAndAssignedDate(Long userId, LocalDate assignedDate);
+
+
+    List<UserDailyChallenge> findByUserIdAndAssignedDateBetween(Long userId, LocalDate startDate, LocalDate endDate);
 }
