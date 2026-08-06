@@ -11,6 +11,8 @@ import com.dhruv.arthrix.exception.ResourceNotFoundException;
 import com.dhruv.arthrix.mapper.MealMapper;
 import com.dhruv.arthrix.repository.MealRepository;
 import com.dhruv.arthrix.service.MealService;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -19,6 +21,8 @@ import java.util.stream.Collectors;
 
 @Service
 public class MealServiceImpl implements MealService {
+
+    private static final Logger logger = LogManager.getLogger(MealServiceImpl.class);
 
     private final MealRepository mealRepository;
     private final NutritionClient nutritionClient;
@@ -40,13 +44,17 @@ public class MealServiceImpl implements MealService {
     @Override
     public MealDTO getMealById(Long mealId) {
         Meal meal = mealRepository.findById(mealId)
-                .orElseThrow(() -> new ResourceNotFoundException("Meal not found with id: " + mealId));
+                .orElseThrow(() -> {
+                    logger.error("getMealById failed — meal not found, mealId={}", mealId);
+                    return new ResourceNotFoundException("Meal not found with id: " + mealId);
+                });
         return MealMapper.toDTO(meal);
     }
 
     @Override
     public List<MealDTO> getMealsByDietPreferenceAndMealType(DietPreference dietPreference, MealType mealType) {
         List<Meal> meals = mealRepository.findByDietPreferenceAndMealType(dietPreference, mealType);
+        logger.debug("Found {} meals for dietPreference={}, mealType={}", meals.size(), dietPreference, mealType);
         return meals.stream()
                 .map(MealMapper::toDTO)
                 .collect(Collectors.toList());
@@ -54,16 +62,24 @@ public class MealServiceImpl implements MealService {
 
     @Override
     public void syncMealsFromExternalApi() {
+        logger.info("Starting meal sync from Open Food Facts external API");
+
         List<NutritionApiResponse.Product> products = nutritionClient.fetchAllMeals();
+        logger.debug("Fetched {} raw products from Open Food Facts", products.size());
+
+        int savedCount = 0;
+        int skippedCount = 0;
 
         for (NutritionApiResponse.Product product : products) {
             String name = product.getProductName();
             if (name == null || name.isBlank()) {
+                skippedCount++;
                 continue;
             }
 
             NutritionApiResponse.Nutriments nutriments = product.getNutriments();
             if (nutriments == null) {
+                skippedCount++;
                 continue;
             }
 
@@ -79,6 +95,9 @@ public class MealServiceImpl implements MealService {
             meal.setFat(nutriments.getFat100g());
 
             mealRepository.save(meal);
+            savedCount++;
         }
+
+        logger.info("Meal sync complete — saved={}, skipped (missing name/nutriments)={}", savedCount, skippedCount);
     }
 }

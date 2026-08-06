@@ -2,6 +2,7 @@ package com.dhruv.arthrix.config;
 
 import com.dhruv.arthrix.security.JwtAuthFilter;
 import com.dhruv.arthrix.security.OAuth2SuccessHandler;
+import com.dhruv.arthrix.security.RateLimitFilter;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -21,11 +22,14 @@ public class SecurityConfig {
 
     private final OAuth2SuccessHandler oAuth2SuccessHandler;
     private final JwtAuthFilter jwtAuthFilter;
+    private final RateLimitFilter rateLimitFilter;
 
     @Autowired
-    public SecurityConfig(OAuth2SuccessHandler oAuth2SuccessHandler, JwtAuthFilter jwtAuthFilter) {
+    public SecurityConfig(OAuth2SuccessHandler oAuth2SuccessHandler, JwtAuthFilter jwtAuthFilter,
+                          RateLimitFilter rateLimitFilter) {
         this.oAuth2SuccessHandler = oAuth2SuccessHandler;
         this.jwtAuthFilter = jwtAuthFilter;
+        this.rateLimitFilter = rateLimitFilter;
     }
 
     @Bean
@@ -41,7 +45,11 @@ public class SecurityConfig {
                 .oauth2Login(oauth2 -> oauth2
                         .successHandler(oAuth2SuccessHandler)
                 )
-                .addFilterBefore(jwtAuthFilter, UsernamePasswordAuthenticationFilter.class);
+                // Rate limit runs first — before JWT validation — since login/logout hit these
+                // paths without a token in the first place. If the rate limiter blocks a request,
+                // it never even reaches the JWT filter.
+                .addFilterBefore(rateLimitFilter, UsernamePasswordAuthenticationFilter.class)
+                .addFilterAfter(jwtAuthFilter, RateLimitFilter.class);
 
         return http.build();
     }

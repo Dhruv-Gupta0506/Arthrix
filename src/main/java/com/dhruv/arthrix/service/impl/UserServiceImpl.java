@@ -16,6 +16,8 @@ import com.dhruv.arthrix.repository.MealRepository;
 import com.dhruv.arthrix.repository.UserRepository;
 import com.dhruv.arthrix.repository.WorkoutRepository;
 import com.dhruv.arthrix.service.UserService;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -24,6 +26,8 @@ import java.util.stream.Collectors;
 
 @Service
 public class UserServiceImpl implements UserService {
+
+    private static final Logger logger = LogManager.getLogger(UserServiceImpl.class);
 
     private final UserRepository userRepository;
     private final WorkoutRepository workoutRepository;
@@ -39,14 +43,20 @@ public class UserServiceImpl implements UserService {
     @Override
     public UserProfileDTO getUserProfile(Long userId) {
         User user = userRepository.findById(userId)
-                .orElseThrow(() -> new ResourceNotFoundException("User not found with id: " + userId));
+                .orElseThrow(() -> {
+                    logger.error("getUserProfile failed — user not found, userId={}", userId);
+                    return new ResourceNotFoundException("User not found with id: " + userId);
+                });
         return UserMapper.toDTO(user);
     }
 
     @Override
     public UserProfileDTO updateUserProfile(Long userId, UpdateProfileRequest request) {
         User user = userRepository.findById(userId)
-                .orElseThrow(() -> new ResourceNotFoundException("User not found with id: " + userId));
+                .orElseThrow(() -> {
+                    logger.error("updateUserProfile failed — user not found, userId={}", userId);
+                    return new ResourceNotFoundException("User not found with id: " + userId);
+                });
 
         user.setAge(request.getAge());
         user.setGender(request.getGender());
@@ -56,22 +66,31 @@ public class UserServiceImpl implements UserService {
         user.setFitnessGoal(request.getFitnessGoal());
 
         User updatedUser = userRepository.save(user);
+        logger.info("Profile updated for userId={}", userId);
         return UserMapper.toDTO(updatedUser);
     }
 
     @Override
     public double calculateBmi(Long userId) {
         User user = userRepository.findById(userId)
-                .orElseThrow(() -> new ResourceNotFoundException("User not found with id: " + userId));
+                .orElseThrow(() -> {
+                    logger.error("calculateBmi failed — user not found, userId={}", userId);
+                    return new ResourceNotFoundException("User not found with id: " + userId);
+                });
 
         double heightInMeters = user.getHeight() / 100;
-        return user.getWeight() / (heightInMeters * heightInMeters);
+        double bmi = user.getWeight() / (heightInMeters * heightInMeters);
+        logger.debug("Calculated BMI={} for userId={}", bmi, userId);
+        return bmi;
     }
 
     @Override
     public double calculateDailyCalories(Long userId) {
         User user = userRepository.findById(userId)
-                .orElseThrow(() -> new ResourceNotFoundException("User not found with id: " + userId));
+                .orElseThrow(() -> {
+                    logger.error("calculateDailyCalories failed — user not found, userId={}", userId);
+                    return new ResourceNotFoundException("User not found with id: " + userId);
+                });
 
         double bmr;
         if (user.getGender() == Gender.MALE) {
@@ -80,13 +99,18 @@ public class UserServiceImpl implements UserService {
             bmr = (10 * user.getWeight()) + (6.25 * user.getHeight()) - (5 * user.getAge()) - 161;
         }
 
-        return bmr * 1.2;
+        double dailyCalories = bmr * 1.2;
+        logger.debug("Calculated daily calories={} for userId={}", dailyCalories, userId);
+        return dailyCalories;
     }
 
     @Override
     public double calculateProteinNeeds(Long userId) {
         User user = userRepository.findById(userId)
-                .orElseThrow(() -> new ResourceNotFoundException("User not found with id: " + userId));
+                .orElseThrow(() -> {
+                    logger.error("calculateProteinNeeds failed — user not found, userId={}", userId);
+                    return new ResourceNotFoundException("User not found with id: " + userId);
+                });
 
         return user.getWeight() * 1.6;
     }
@@ -101,6 +125,7 @@ public class UserServiceImpl implements UserService {
 
         user.getFavoriteWorkouts().add(workout);
         userRepository.save(user);
+        logger.info("userId={} favorited workoutId={}", userId, workoutId);
     }
 
     @Override
@@ -113,6 +138,7 @@ public class UserServiceImpl implements UserService {
 
         user.getFavoriteWorkouts().remove(workout);
         userRepository.save(user);
+        logger.info("userId={} unfavorited workoutId={}", userId, workoutId);
     }
 
     @Override
@@ -135,6 +161,7 @@ public class UserServiceImpl implements UserService {
 
         user.getFavoriteMeals().add(meal);
         userRepository.save(user);
+        logger.info("userId={} favorited mealId={}", userId, mealId);
     }
 
     @Override
@@ -147,6 +174,7 @@ public class UserServiceImpl implements UserService {
 
         user.getFavoriteMeals().remove(meal);
         userRepository.save(user);
+        logger.info("userId={} unfavorited mealId={}", userId, mealId);
     }
 
     @Override
