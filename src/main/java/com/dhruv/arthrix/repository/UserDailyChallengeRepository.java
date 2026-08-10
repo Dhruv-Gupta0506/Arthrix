@@ -10,6 +10,5 @@ public interface UserDailyChallengeRepository extends JpaRepository<UserDailyCha
 
     List<UserDailyChallenge> findByUserIdAndAssignedDate(Long userId, LocalDate assignedDate);
 
-
     List<UserDailyChallenge> findByUserIdAndAssignedDateBetween(Long userId, LocalDate startDate, LocalDate endDate);
 }
