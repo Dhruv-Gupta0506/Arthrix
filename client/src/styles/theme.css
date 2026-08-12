@@ -1,0 +1,200 @@
+/* ============================================================
+   ARTHRIX — REUSABLE COMPONENT CLASSES (Tailwind v4)
+============================================================ */
+
+@utility btn {
+  @apply inline-flex items-center justify-center gap-2 rounded-full px-6 py-3
+         font-display text-sm font-semibold tracking-wide transition-all duration-200
+         disabled:opacity-40 disabled:cursor-not-allowed;
+}
+
+@utility card {
+  @apply rounded-2xl border border-border bg-surface p-5 shadow-card
+         transition-all duration-200 lg:hover:border-volt/30 lg:hover:-translate-y-1;
+}
+
+@utility badge {
+  @apply inline-flex items-center gap-1 rounded-full px-3 py-1 text-xs font-semibold
+         uppercase tracking-wide;
+}
+
+@utility input-field {
+  @apply w-full rounded-xl border border-border bg-surface-hi px-4 py-3 text-ink
+         placeholder:text-ink-faint outline-none transition-colors focus:border-volt/60;
+}
+
+@utility nav-link {
+  @apply text-sm font-medium text-ink-muted transition-colors hover:text-ink;
+}
+
+@layer base {
+  h1, h2, h3, h4 {
+    @apply font-display text-ink;
+  }
+}
+
+@layer components {
+  /* ---------- Layout ---------- */
+  .page-shell { @apply min-h-screen bg-void; }
+  .container-arthrix { @apply mx-auto w-full max-w-7xl px-5 sm:px-8 lg:px-10; }
+  .section { @apply py-14 lg:py-24; }
+  .grid-bg {
+    background-image:
+      linear-gradient(rgba(255, 255, 255, 0.03) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(255, 255, 255, 0.03) 1px, transparent 1px);
+    background-size: 40px 40px;
+  }
+  .page-stack { @apply flex flex-col gap-8; }
+  .content-stack { @apply flex flex-col gap-6; }
+
+  /* ---------- Buttons ---------- */
+  .btn-primary {
+    @apply btn bg-volt text-void hover:bg-volt-dim
+           lg:hover:shadow-glow lg:hover:-translate-y-0.5;
+  }
+  .btn-secondary {
+    @apply btn bg-surface-hi text-ink border border-border
+           hover:border-volt/50 hover:text-volt;
+  }
+  .btn-ghost { @apply btn bg-transparent text-ink-muted hover:text-ink; }
+  .btn-danger { @apply btn bg-ember text-void hover:bg-ember-dim; }
+  .back-link { @apply btn-ghost mb-6 px-0; }
+  .toggle-btn { @apply btn-secondary; }
+  .toggle-btn-active { @apply btn-primary; }
+  .toggle-row { @apply flex gap-2; }
+
+  /* ---------- Cards ---------- */
+  .card-flat { @apply rounded-2xl border border-border bg-surface p-5; }
+  .card-stat { @apply card flex flex-col gap-1; }
+  .card-stat-value { @apply font-mono text-3xl font-semibold text-volt; }
+  .card-stat-label { @apply text-xs uppercase tracking-widest text-ink-muted; }
+  .card-clickable { @apply card cursor-pointer; }
+
+  /* ---------- Badges ---------- */
+  .badge-beginner { @apply badge bg-volt/15 text-volt; }
+  .badge-intermediate { @apply badge bg-ember/15 text-ember; }
+  .badge-advanced { @apply badge bg-red-500/15 text-red-400; }
+  .badge-neutral { @apply badge bg-surface-hi text-ink-muted; }
+  .coming-soon-badge { @apply badge bg-surface text-ink-faint; }
+
+  /* ---------- Inputs ---------- */
+  .select-field { @apply input-field appearance-none; }
+  .select-inline { @apply select-field w-auto; }
+  .label-field { @apply mb-1.5 block text-xs font-semibold uppercase tracking-widest text-ink-muted; }
+  .form-grid { @apply grid grid-cols-1 gap-5 sm:grid-cols-2; }
+  .form-actions { @apply mt-6 flex items-center gap-3; }
+  .form-section-title { @apply mb-4 text-lg font-semibold; }
+
+  /* ---------- Nav ---------- */
+  .navbar { @apply sticky top-0 z-50 border-b border-border/60 bg-void/80 backdrop-blur-md; }
+  .nav-link-active { @apply nav-link text-volt; }
+
+  /* ---------- Loading / Empty / Error states ---------- */
+  .skeleton { @apply animate-pulse rounded-xl bg-surface-hi; }
+  .empty-state {
+    @apply flex flex-col items-center justify-center gap-3 rounded-2xl border border-dashed
+           border-border py-16 text-center text-ink-muted;
+  }
+  .error-state {
+    @apply flex flex-col items-center justify-center gap-3 rounded-2xl border border-ember/30
+           bg-ember/5 py-10 text-center text-ember;
+  }
+
+  /* ---------- Chat bubbles ---------- */
+  .bubble-user { @apply ml-auto max-w-[80%] rounded-2xl rounded-br-sm bg-volt text-void px-4 py-2.5 text-sm; }
+  .bubble-ai { @apply mr-auto max-w-[80%] rounded-2xl rounded-bl-sm bg-surface-hi text-ink px-4 py-2.5 text-sm; }
+  .chat-shell { @apply flex h-[70vh] flex-col rounded-2xl border border-border bg-surface; }
+  .chat-scroll { @apply flex-1 space-y-3 overflow-y-auto p-5; }
+  .chat-input-row { @apply flex items-center gap-3 border-t border-border p-4; }
+  .chat-send-btn { @apply btn-primary px-4 py-3; }
+  .chat-empty { @apply flex h-full flex-col items-center justify-center gap-2 text-center text-ink-muted; }
+
+  /* ---------- Desktop-only motion ---------- */
+  .hover-float { @apply lg:hover:animate-float; }
+  .entrance { @apply lg:animate-fade-in-up; }
+  .glow-pulse { @apply lg:animate-pulse-glow; }
+
+  /* ---------- Dashboard ---------- */
+  .dashboard-greeting { @apply flex items-center gap-4; }
+  .dashboard-avatar { @apply h-14 w-14 rounded-full border border-border; }
+  .dashboard-name { @apply text-2xl font-bold; }
+  .dashboard-goal { @apply text-sm text-ink-muted; }
+
+  .stat-grid { @apply grid grid-cols-2 gap-4 lg:grid-cols-4; }
+  .stat-value-row { @apply flex items-center gap-1.5; }
+  .stat-icon-flame { @apply h-6 w-6 text-ember; }
+
+  .challenges-panel-header { @apply mb-4 flex items-center justify-between; }
+  .challenges-panel-title { @apply text-lg font-semibold; }
+  .challenges-panel-count { @apply text-sm text-ink-muted; }
+  .challenge-list { @apply flex flex-col gap-2; }
+  .challenge-item {
+    @apply flex items-center gap-3 rounded-xl border border-border bg-surface-hi px-4 py-3
+           text-left transition-colors disabled:cursor-default hover:border-volt/30;
+  }
+  .challenge-icon { @apply h-5 w-5 shrink-0; }
+  .challenge-title { @apply text-sm text-ink; }
+  .challenge-title-done { @apply text-sm text-ink-muted line-through; }
+  .challenge-description { @apply text-xs text-ink-faint; }
+
+  .streak-banner { @apply card-flat flex items-center justify-between; }
+  .streak-banner-value { @apply flex items-center gap-2 text-3xl font-bold text-ember; }
+  .streak-banner-label { @apply text-xs uppercase tracking-widest text-ink-muted; }
+
+  .recommend-grid { @apply grid grid-cols-1 gap-5 lg:grid-cols-2; }
+  .recommend-label { @apply mb-3 flex items-center gap-2; }
+  .recommend-label-text { @apply text-xs font-semibold uppercase tracking-widest; }
+  .recommend-title { @apply font-display text-lg font-semibold; }
+  .recommend-description { @apply mt-1 text-sm text-ink-muted; }
+
+  .icon-volt { @apply text-volt; }
+  .icon-ember { @apply text-ember; }
+
+  /* ---------- Workouts / Meals list pages ---------- */
+  .page-header-row { @apply flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between; }
+  .page-title { @apply text-2xl font-bold; }
+  .filter-group { @apply flex gap-3; }
+
+  .item-grid { @apply grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-3; }
+  .item-card-header { @apply mb-3 flex items-start justify-between; }
+  .item-card-title { @apply font-display text-lg font-semibold; }
+  .item-card-desc { @apply mt-1 line-clamp-2 text-sm text-ink-muted; }
+  .item-meta-row { @apply mt-4 flex items-center gap-4 text-xs text-ink-faint; }
+  .item-meta { @apply flex items-center gap-1; }
+
+  .favorite-btn { @apply text-ink-muted transition-colors hover:text-ember; }
+  .icon-favorite { @apply h-5 w-5; }
+  .icon-favorite-active { @apply h-5 w-5 fill-ember text-ember; }
+  .icon-favorite-lg { @apply h-6 w-6; }
+  .icon-favorite-lg-active { @apply h-6 w-6 fill-ember text-ember; }
+
+  /* ---------- Detail pages (Workout / Meal) ---------- */
+  .detail-tag-row { @apply flex flex-wrap items-center gap-2; }
+  .detail-header-row { @apply flex items-start justify-between; }
+  .detail-title { @apply mt-4 font-display text-2xl font-bold; }
+  .detail-description { @apply mt-3 text-ink-muted; }
+  .detail-stats-row { @apply mt-6 flex gap-6 border-t border-border pt-6; }
+  .detail-stat { @apply flex items-center gap-2; }
+  .detail-stat-value { @apply font-mono text-lg font-semibold; }
+  .detail-stat-label { @apply text-xs text-ink-muted; }
+  .macro-grid { @apply mt-6 grid grid-cols-2 gap-4 border-t border-border pt-6 sm:grid-cols-4; }
+
+  /* ---------- Rich text (backend HTML descriptions) ---------- */
+  .rich-text { @apply text-sm text-ink-muted; }
+  .rich-text p { @apply mb-3 leading-relaxed; }
+  .rich-text ol { @apply ml-5 list-decimal space-y-1.5; }
+  .rich-text ul { @apply ml-5 list-disc space-y-1.5; }
+  .rich-text li { @apply text-ink-muted; }
+
+  /* ---------- Favorites tabs ---------- */
+  .tab-row { @apply flex gap-2 border-b border-border; }
+  .tab-btn { @apply px-4 py-2 text-sm font-medium text-ink-muted transition-colors border-b-2 border-transparent hover:text-ink; }
+  .tab-btn-active { @apply tab-btn text-volt border-volt; }
+
+  /* ---------- Profile / Settings forms ---------- */
+  .coming-soon-row { @apply flex items-center justify-between rounded-xl border border-border bg-surface-hi px-4 py-3; }
+  .coming-soon-label { @apply text-sm text-ink; }
+
+  /* ---------- Analytics ---------- */
+  .analytics-grid { @apply grid grid-cols-2 gap-4 lg:grid-cols-3; }
+}
