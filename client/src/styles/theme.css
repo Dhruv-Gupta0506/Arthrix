@@ -1,5 +1,8 @@
 /* ============================================================
    ARTHRIX — REUSABLE COMPONENT CLASSES (Tailwind v4)
+   RULE: any class referenced inside another class's @apply MUST
+   be declared with @utility. Plain @layer components classes
+   can only be used directly in JSX, never inside another @apply.
 ============================================================ */
 
 @utility btn {
@@ -7,11 +10,22 @@
          font-display text-sm font-semibold tracking-wide transition-all duration-200
          disabled:opacity-40 disabled:cursor-not-allowed;
 }
+@utility btn-primary {
+  @apply btn bg-volt text-void hover:bg-volt-dim
+         lg:hover:shadow-glow lg:hover:-translate-y-0.5;
+}
+@utility btn-secondary {
+  @apply btn bg-surface-hi text-ink border border-border
+         hover:border-volt/50 hover:text-volt;
+}
+@utility btn-ghost { @apply btn bg-transparent text-ink-muted hover:text-ink; }
+@utility btn-danger { @apply btn bg-ember text-void hover:bg-ember-dim; }
 
 @utility card {
   @apply rounded-2xl border border-border bg-surface p-5 shadow-card
          transition-all duration-200 lg:hover:border-volt/30 lg:hover:-translate-y-1;
 }
+@utility card-flat { @apply rounded-2xl border border-border bg-surface p-5; }
 
 @utility badge {
   @apply inline-flex items-center gap-1 rounded-full px-3 py-1 text-xs font-semibold
@@ -22,9 +36,14 @@
   @apply w-full rounded-xl border border-border bg-surface-hi px-4 py-3 text-ink
          placeholder:text-ink-faint outline-none transition-colors focus:border-volt/60;
 }
+@utility select-field { @apply input-field appearance-none; }
 
 @utility nav-link {
   @apply text-sm font-medium text-ink-muted transition-colors hover:text-ink;
+}
+
+@utility tab-btn {
+  @apply px-4 py-2 text-sm font-medium text-ink-muted transition-colors border-b-2 border-transparent hover:text-ink;
 }
 
 @layer base {
@@ -47,28 +66,19 @@
   .page-stack { @apply flex flex-col gap-8; }
   .content-stack { @apply flex flex-col gap-6; }
 
-  /* ---------- Buttons ---------- */
-  .btn-primary {
-    @apply btn bg-volt text-void hover:bg-volt-dim
-           lg:hover:shadow-glow lg:hover:-translate-y-0.5;
-  }
-  .btn-secondary {
-    @apply btn bg-surface-hi text-ink border border-border
-           hover:border-volt/50 hover:text-volt;
-  }
-  .btn-ghost { @apply btn bg-transparent text-ink-muted hover:text-ink; }
-  .btn-danger { @apply btn bg-ember text-void hover:bg-ember-dim; }
+  /* ---------- Buttons (built from @utility btn-* above, safe) ---------- */
   .back-link { @apply btn-ghost mb-6 px-0; }
   .toggle-btn { @apply btn-secondary; }
   .toggle-btn-active { @apply btn-primary; }
   .toggle-row { @apply flex gap-2; }
+  .chat-send-btn { @apply btn-primary px-4 py-3; }
 
-  /* ---------- Cards ---------- */
-  .card-flat { @apply rounded-2xl border border-border bg-surface p-5; }
+  /* ---------- Cards (built from @utility card / card-flat, safe) ---------- */
   .card-stat { @apply card flex flex-col gap-1; }
   .card-stat-value { @apply font-mono text-3xl font-semibold text-volt; }
   .card-stat-label { @apply text-xs uppercase tracking-widest text-ink-muted; }
   .card-clickable { @apply card cursor-pointer; }
+  .streak-banner { @apply card-flat flex items-center justify-between; }
 
   /* ---------- Badges ---------- */
   .badge-beginner { @apply badge bg-volt/15 text-volt; }
@@ -78,7 +88,6 @@
   .coming-soon-badge { @apply badge bg-surface text-ink-faint; }
 
   /* ---------- Inputs ---------- */
-  .select-field { @apply input-field appearance-none; }
   .select-inline { @apply select-field w-auto; }
   .label-field { @apply mb-1.5 block text-xs font-semibold uppercase tracking-widest text-ink-muted; }
   .form-grid { @apply grid grid-cols-1 gap-5 sm:grid-cols-2; }
@@ -106,7 +115,6 @@
   .chat-shell { @apply flex h-[70vh] flex-col rounded-2xl border border-border bg-surface; }
   .chat-scroll { @apply flex-1 space-y-3 overflow-y-auto p-5; }
   .chat-input-row { @apply flex items-center gap-3 border-t border-border p-4; }
-  .chat-send-btn { @apply btn-primary px-4 py-3; }
   .chat-empty { @apply flex h-full flex-col items-center justify-center gap-2 text-center text-ink-muted; }
 
   /* ---------- Desktop-only motion ---------- */
@@ -137,7 +145,6 @@
   .challenge-title-done { @apply text-sm text-ink-muted line-through; }
   .challenge-description { @apply text-xs text-ink-faint; }
 
-  .streak-banner { @apply card-flat flex items-center justify-between; }
   .streak-banner-value { @apply flex items-center gap-2 text-3xl font-bold text-ember; }
   .streak-banner-label { @apply text-xs uppercase tracking-widest text-ink-muted; }
 
@@ -188,7 +195,6 @@
 
   /* ---------- Favorites tabs ---------- */
   .tab-row { @apply flex gap-2 border-b border-border; }
-  .tab-btn { @apply px-4 py-2 text-sm font-medium text-ink-muted transition-colors border-b-2 border-transparent hover:text-ink; }
   .tab-btn-active { @apply tab-btn text-volt border-volt; }
 
   /* ---------- Profile / Settings forms ---------- */
