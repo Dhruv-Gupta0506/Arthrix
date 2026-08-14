@@ -53,7 +53,18 @@ public class MealServiceImpl implements MealService {
 
     @Override
     public List<MealDTO> getMealsByDietPreferenceAndMealType(DietPreference dietPreference, MealType mealType) {
-        List<Meal> meals = mealRepository.findByDietPreferenceAndMealType(dietPreference, mealType);
+        List<Meal> meals;
+
+        if (dietPreference != null && mealType != null) {
+            meals = mealRepository.findByDietPreferenceAndMealType(dietPreference, mealType);
+        } else if (dietPreference != null) {
+            meals = mealRepository.findByDietPreference(dietPreference);
+        } else if (mealType != null) {
+            meals = mealRepository.findByMealType(mealType);
+        } else {
+            meals = mealRepository.findAll();
+        }
+
         logger.debug("Found {} meals for dietPreference={}, mealType={}", meals.size(), dietPreference, mealType);
         return meals.stream()
                 .map(MealMapper::toDTO)

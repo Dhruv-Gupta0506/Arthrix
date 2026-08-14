@@ -3,6 +3,7 @@ import { Send } from "lucide-react";
 import api from "../api/axios";
 import { useAuth } from "../context/AuthContext";
 import AppLayout from "../components/layout/AppLayout";
+import { formatChatText } from "../lib/chatFormat";
 
 export default function Chatbot() {
   const { userId } = useAuth();
@@ -25,7 +26,6 @@ export default function Chatbot() {
     setSending(true);
 
     try {
-      // Chat is stateless on the backend — each request is independent, no memory between messages
       const res = await api.post(`/api/chat/${userId}`, { message: text });
       const reply = res.data?.data ?? "Sorry, I didn't catch that.";
       setMessages((prev) => [...prev, { role: "ai", text: reply }]);
@@ -51,9 +51,9 @@ export default function Chatbot() {
               </div>
             )}
             {messages.map((m, i) => (
-              <p key={i} className={m.role === "user" ? "bubble-user" : "bubble-ai"}>
-                {m.text}
-              </p>
+              <div key={i} className={m.role === "user" ? "bubble-user" : "bubble-ai"}>
+                {m.role === "user" ? m.text : formatChatText(m.text)}
+              </div>
             ))}
             {sending && <p className="bubble-ai">Thinking...</p>}
           </div>

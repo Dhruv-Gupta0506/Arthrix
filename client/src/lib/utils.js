@@ -14,6 +14,8 @@ export const DIET_OPTIONS = ["VEG", "NON_VEG"];
 export const FITNESS_GOAL_OPTIONS = ["LOSE_FAT", "MAINTAIN", "GAIN_MUSCLE"];
 export const DIFFICULTY_OPTIONS = ["BEGINNER", "INTERMEDIATE", "ADVANCED"];
 export const MEAL_TYPE_OPTIONS = ["BREAKFAST", "LUNCH", "SNACKS", "DINNER"];
-export function stripHtml(html = "") {
+
+export function stripHtml(html) {
+  if (!html) return "";
   return html.replace(/<[^>]*>/g, " ").replace(/\s+/g, " ").trim();
 }

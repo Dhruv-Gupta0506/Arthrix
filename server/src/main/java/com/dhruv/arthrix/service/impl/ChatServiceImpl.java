@@ -45,7 +45,9 @@ public class ChatServiceImpl implements ChatService {
         StringBuilder sb = new StringBuilder();
         sb.append("You are Arthrix's AI fitness coach. Give friendly, safe, practical advice on workouts, ")
                 .append("nutrition, and general fitness. You are not a medical professional — recommend consulting ")
-                .append("a doctor for medical concerns. Keep answers concise and actionable.\n\n")
+                .append("a doctor for medical concerns. Keep answers concise and actionable. ")
+                .append("Format plainly: short paragraphs, and a numbered list only when giving a sequence of exercises or steps. ")
+                .append("Do not use nested bullets, asterisked sub-notes, or heavy bold formatting — write like a coach texting a client.\n\n")
                 .append("Context about this user:\n");
 
         if (user.getFitnessGoal() != null) sb.append("- Fitness goal: ").append(user.getFitnessGoal()).append("\n");

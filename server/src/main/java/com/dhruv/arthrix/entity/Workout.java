@@ -2,6 +2,8 @@ package com.dhruv.arthrix.entity;
 
 import com.dhruv.arthrix.enums.Difficulty;
 import com.dhruv.arthrix.enums.FitnessGoal;
+import com.dhruv.arthrix.enums.MuscleGroup;
+import com.dhruv.arthrix.enums.WorkoutLocation;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -25,6 +27,14 @@ public class Workout {
 
     @Column(columnDefinition = "TEXT")
     private String description;
+
+    @Enumerated(EnumType.STRING)
+    private MuscleGroup muscleGroup;
+
+
+
+    @Enumerated(EnumType.STRING)
+    private WorkoutLocation location;
 
     @Enumerated(EnumType.STRING)
     private Difficulty difficulty;

@@ -39,8 +39,8 @@ public class MealController {
 
     @GetMapping("/filter")
     public ResponseEntity<ApiResponse<List<MealDTO>>> getMealsByDietPreferenceAndMealType(
-            @RequestParam DietPreference dietPreference,
-            @RequestParam MealType mealType) {
+            @RequestParam(required = false) DietPreference dietPreference,
+            @RequestParam(required = false) MealType mealType) {
 
         List<MealDTO> meals = mealService.getMealsByDietPreferenceAndMealType(dietPreference, mealType);
         ApiResponse<List<MealDTO>> response = ApiResponse.success("Filtered meals fetched successfully", meals);

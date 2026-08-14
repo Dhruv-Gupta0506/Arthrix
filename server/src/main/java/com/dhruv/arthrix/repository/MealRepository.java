@@ -7,6 +7,8 @@ import org.springframework.data.jpa.repository.JpaRepository;
 
 import java.util.List;
 
-public interface MealRepository extends JpaRepository<Meal,Long> {
+public interface MealRepository extends JpaRepository<Meal, Long> {
     List<Meal> findByDietPreferenceAndMealType(DietPreference dietPreference, MealType mealType);
+    List<Meal> findByDietPreference(DietPreference dietPreference);
+    List<Meal> findByMealType(MealType mealType);
 }

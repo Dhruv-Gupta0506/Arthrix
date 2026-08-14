@@ -85,7 +85,7 @@ export default function WorkoutDetail() {
         <h1 className="detail-title">{workout.name}</h1>
 
         {/* Backend sends description as formatted HTML (paragraphs + numbered steps) */}
-        <div className="detail-description rich-text" dangerouslySetInnerHTML={{ __html: workout.description }} />
+        <div className="detail-description rich-text" dangerouslySetInnerHTML={{ __html: workout.description ?? "" }} />
 
         <div className="detail-stats-row">
           <div className="detail-stat">

@@ -82,7 +82,7 @@ export default function MealDetail() {
         </div>
 
         <h1 className="detail-title">{meal.name}</h1>
-        <div className="detail-description rich-text" dangerouslySetInnerHTML={{ __html: meal.description }} />
+        <div className="detail-description rich-text" dangerouslySetInnerHTML={{ __html: meal.description ?? "" }} />
 
         <div className="macro-grid">
           <div>

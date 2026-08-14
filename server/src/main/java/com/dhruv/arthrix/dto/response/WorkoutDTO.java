@@ -2,6 +2,8 @@ package com.dhruv.arthrix.dto.response;
 
 import com.dhruv.arthrix.enums.Difficulty;
 import com.dhruv.arthrix.enums.FitnessGoal;
+import com.dhruv.arthrix.enums.MuscleGroup;
+import com.dhruv.arthrix.enums.WorkoutLocation;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -19,4 +21,6 @@ public class WorkoutDTO {
     private Integer estimatedCaloriesBurned;
     private Difficulty difficulty;
     private FitnessGoal fitnessGoal;
+    private MuscleGroup muscleGroup;
+    private WorkoutLocation location;
 }

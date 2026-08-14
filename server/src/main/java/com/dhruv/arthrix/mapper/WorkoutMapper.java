@@ -14,6 +14,8 @@ public class WorkoutMapper {
         dto.setFitnessGoal(workout.getFitnessGoal());
         dto.setDescription(workout.getDescription());
         dto.setEstimatedCaloriesBurned(workout.getEstimatedCaloriesBurned());
+        dto.setMuscleGroup(workout.getMuscleGroup());
+        dto.setLocation(workout.getLocation());
 
         return dto;
     }

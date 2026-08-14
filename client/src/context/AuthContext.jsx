@@ -1,4 +1,5 @@
 import { createContext, useContext, useEffect, useState, useCallback } from "react";
+import { useNavigate } from "react-router-dom";
 import { jwtDecode } from "jwt-decode";
 import api from "../api/axios";
 import { TOKEN_KEY } from "../lib/utils";
@@ -6,15 +7,25 @@ import { TOKEN_KEY } from "../lib/utils";
 const AuthContext = createContext(null);
 
 export function AuthProvider({ children }) {
+  const navigate = useNavigate();
   const [token, setToken] = useState(() => localStorage.getItem(TOKEN_KEY));
   const [user, setUser] = useState(null);
   const [userId, setUserId] = useState(null);
   const [loading, setLoading] = useState(true);
 
+  const isTokenExpired = useCallback((jwt) => {
+    try {
+      const { exp } = jwtDecode(jwt);
+      if (!exp) return false;
+      return Date.now() >= exp * 1000;
+    } catch {
+      return true;
+    }
+  }, []);
+
   const decodeAndSetUserId = useCallback((jwt) => {
     try {
       const payload = jwtDecode(jwt);
-      // Backend only sets .subject(userId) — no custom "userId" claim exists
       const id = payload.sub;
       setUserId(id);
       return id;
@@ -34,12 +45,30 @@ export function AuthProvider({ children }) {
     }
   }, []);
 
+  const clearSession = useCallback(() => {
+    localStorage.removeItem(TOKEN_KEY);
+    setToken(null);
+    setUser(null);
+    setUserId(null);
+  }, []);
+
+  useEffect(() => {
+    const handleUnauthorized = () => {
+      clearSession();
+      navigate("/", { replace: true });
+    };
+    window.addEventListener("auth:unauthorized", handleUnauthorized);
+    return () => window.removeEventListener("auth:unauthorized", handleUnauthorized);
+  }, [clearSession, navigate]);
+
   useEffect(() => {
     const init = async () => {
       const existing = localStorage.getItem(TOKEN_KEY);
-      if (existing) {
+      if (existing && !isTokenExpired(existing)) {
         const id = decodeAndSetUserId(existing);
         await fetchProfile(id);
+      } else if (existing) {
+        localStorage.removeItem(TOKEN_KEY);
       }
       setLoading(false);
     };
@@ -65,20 +94,10 @@ export function AuthProvider({ children }) {
     } catch (err) {
       console.error("Logout call failed, clearing session locally anyway:", err);
     } finally {
-      localStorage.removeItem(TOKEN_KEY);
-      setToken(null);
-      setUser(null);
-      setUserId(null);
-      window.location.href = "/";
+      clearSession();
+      navigate("/", { replace: true });
     }
-  }, [token]);
-
-  const clearSession = useCallback(() => {
-    localStorage.removeItem(TOKEN_KEY);
-    setToken(null);
-    setUser(null);
-    setUserId(null);
-  }, []);
+  }, [token, clearSession, navigate]);
 
   return (
     <AuthContext.Provider

@@ -203,4 +203,22 @@
 
   /* ---------- Analytics ---------- */
   .analytics-grid { @apply grid grid-cols-2 gap-4 lg:grid-cols-3; }
+
+  .confirm-overlay { @apply fixed inset-0 z-[100] flex items-center justify-center bg-void/80 p-5; }
+  .confirm-box { @apply w-full max-w-sm rounded-2xl border border-border bg-surface p-6; }
+  .confirm-title { @apply text-lg font-semibold; }
+  .confirm-description { @apply mt-2 text-sm text-ink-muted; }
+  .confirm-actions { @apply mt-6 flex justify-end gap-3; }
+  .bubble-ai p + p { @apply mt-2; }
+
+  .bubble-ai ol { @apply ml-4 list-decimal space-y-1; }
+  .bubble-ai ul { @apply ml-4 list-disc space-y-1; }
+  .bubble-ai p + p, .bubble-ai ol, .bubble-ai ul { @apply mt-2; }
+  .error-boundary-title { @apply text-2xl font-bold; }
+
+  .chat-exercise-item { @apply mt-2; }
+  .chat-exercise-heading { @apply font-semibold text-ink; }
+  .chat-exercise-number { @apply text-volt; }
+  .bubble-ai ul { @apply ml-4 mt-1 list-disc space-y-1 text-ink-muted; }
+  .bubble-ai p + p, .bubble-ai .chat-exercise-item + .chat-exercise-item { @apply mt-3; }
 }

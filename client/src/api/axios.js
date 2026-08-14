@@ -6,7 +6,6 @@ const api = axios.create({
   headers: { "Content-Type": "application/json" },
 });
 
-// Attach the JWT to every outgoing request
 api.interceptors.request.use((config) => {
   const token = localStorage.getItem(TOKEN_KEY);
   if (token) {
@@ -15,16 +14,12 @@ api.interceptors.request.use((config) => {
   return config;
 });
 
-// Global "session expired" handling — any 401/403 clears the token and boots to landing
 api.interceptors.response.use(
   (response) => response,
   (error) => {
     const status = error.response?.status;
     if (status === 401 || status === 403) {
-      localStorage.removeItem(TOKEN_KEY);
-      if (window.location.pathname !== "/") {
-        window.location.href = "/";
-      }
+      window.dispatchEvent(new CustomEvent("auth:unauthorized"));
     }
     return Promise.reject(error);
   }

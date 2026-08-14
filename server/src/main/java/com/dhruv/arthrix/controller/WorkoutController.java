@@ -3,6 +3,8 @@ package com.dhruv.arthrix.controller;
 import com.dhruv.arthrix.dto.response.WorkoutDTO;
 import com.dhruv.arthrix.enums.Difficulty;
 import com.dhruv.arthrix.enums.FitnessGoal;
+import com.dhruv.arthrix.enums.MuscleGroup;
+import com.dhruv.arthrix.enums.WorkoutLocation;
 import com.dhruv.arthrix.response.ApiResponse;
 import com.dhruv.arthrix.service.WorkoutService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -38,11 +40,13 @@ public class WorkoutController {
     }
 
     @GetMapping("/filter")
-    public ResponseEntity<ApiResponse<List<WorkoutDTO>>> getWorkoutsByGoalAndDifficulty(
-            @RequestParam FitnessGoal goal,
-            @RequestParam Difficulty difficulty) {
+    public ResponseEntity<ApiResponse<List<WorkoutDTO>>> filterWorkouts(
+            @RequestParam(required = false) FitnessGoal goal,
+            @RequestParam(required = false) Difficulty difficulty,
+            @RequestParam(required = false) MuscleGroup muscleGroup,
+            @RequestParam(required = false) WorkoutLocation location) {
 
-        List<WorkoutDTO> workouts = workoutService.getWorkoutsByGoalAndDifficulty(goal, difficulty);
+        List<WorkoutDTO> workouts = workoutService.filterWorkouts(goal, difficulty, muscleGroup, location);
         ApiResponse<List<WorkoutDTO>> response = ApiResponse.success("Filtered workouts fetched successfully", workouts);
         return new ResponseEntity<>(response, HttpStatus.OK);
     }

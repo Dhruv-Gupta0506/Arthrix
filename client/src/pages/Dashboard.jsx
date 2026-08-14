@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { Flame, Dumbbell, Utensils, CheckCircle2, Circle } from "lucide-react";
+import { Flame, Dumbbell, CheckCircle2, Circle } from "lucide-react";
 import api from "../api/axios";
 import { useAuth } from "../context/AuthContext";
 import AppLayout from "../components/layout/AppLayout";
@@ -37,11 +37,22 @@ export default function Dashboard() {
 
   const handleCompleteChallenge = async (userChallengeId) => {
     setCompletingId(userChallengeId);
+    setData((prev) => {
+      if (!prev) return prev;
+      const todayChallenges = prev.todayChallenges.map((c) =>
+        c.id === userChallengeId ? { ...c, completed: true } : c
+      );
+      return {
+        ...prev,
+        todayChallenges,
+        challengesCompletedToday: (prev.challengesCompletedToday ?? 0) + 1,
+      };
+    });
     try {
       await api.put(`/api/challenges/${userChallengeId}/complete`);
-      await fetchDashboard();
     } catch (err) {
       console.error("Failed to complete challenge:", err);
+      fetchDashboard();
     } finally {
       setCompletingId(null);
     }
@@ -75,7 +86,6 @@ export default function Dashboard() {
     challengesCompletedToday,
     challengesTotalToday,
     recommendedWorkout,
-    recommendedMeal,
   } = data;
 
   return (
@@ -142,28 +152,16 @@ export default function Dashboard() {
           </div>
         </div>
 
-        <div className="recommend-grid">
-          {recommendedWorkout && (
-            <div className="card" onClick={() => navigate(`/workouts/${recommendedWorkout.id}`)} role="button">
-              <div className="recommend-label icon-volt">
-                <Dumbbell className="h-4 w-4" />
-                <span className="recommend-label-text">Recommended Workout</span>
-              </div>
-              <h3 className="recommend-title">{recommendedWorkout.name}</h3>
-              <p className="recommend-description">{recommendedWorkout.description}</p>
+        {recommendedWorkout && (
+          <div className="card" onClick={() => navigate(`/workouts/${recommendedWorkout.id}`)} role="button">
+            <div className="recommend-label icon-volt">
+              <Dumbbell className="h-4 w-4" />
+              <span className="recommend-label-text">Recommended Workout</span>
             </div>
-          )}
-          {recommendedMeal && (
-            <div className="card" onClick={() => navigate(`/meals/${recommendedMeal.id}`)} role="button">
-              <div className="recommend-label icon-ember">
-                <Utensils className="h-4 w-4" />
-                <span className="recommend-label-text">Recommended Meal</span>
-              </div>
-              <h3 className="recommend-title">{recommendedMeal.name}</h3>
-              <p className="recommend-description">{recommendedMeal.description}</p>
-            </div>
-          )}
-        </div>
+            <h3 className="recommend-title">{recommendedWorkout.name}</h3>
+            <p className="recommend-description">{recommendedWorkout.description}</p>
+          </div>
+        )}
       </div>
     </AppLayout>
   );

@@ -6,6 +6,8 @@ import com.dhruv.arthrix.dto.response.WorkoutDTO;
 import com.dhruv.arthrix.entity.Workout;
 import com.dhruv.arthrix.enums.Difficulty;
 import com.dhruv.arthrix.enums.FitnessGoal;
+import com.dhruv.arthrix.enums.MuscleGroup;
+import com.dhruv.arthrix.enums.WorkoutLocation;
 import com.dhruv.arthrix.exception.ResourceNotFoundException;
 import com.dhruv.arthrix.mapper.WorkoutMapper;
 import com.dhruv.arthrix.repository.WorkoutRepository;
@@ -51,9 +53,10 @@ public class WorkoutServiceImpl implements WorkoutService {
     }
 
     @Override
-    public List<WorkoutDTO> getWorkoutsByGoalAndDifficulty(FitnessGoal goal, Difficulty difficulty) {
-        List<Workout> workouts = workoutRepository.findByFitnessGoalAndDifficulty(goal, difficulty);
-        logger.debug("Found {} workouts for goal={}, difficulty={}", workouts.size(), goal, difficulty);
+    public List<WorkoutDTO> filterWorkouts(FitnessGoal goal, Difficulty difficulty, MuscleGroup muscleGroup, WorkoutLocation location) {
+        List<Workout> workouts = workoutRepository.filterWorkouts(goal, difficulty, muscleGroup, location);
+        logger.debug("Found {} workouts for goal={}, difficulty={}, muscleGroup={}, location={}",
+                workouts.size(), goal, difficulty, muscleGroup, location);
         return workouts.stream()
                 .map(WorkoutMapper::toDTO)
                 .collect(Collectors.toList());
