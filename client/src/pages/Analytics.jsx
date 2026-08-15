@@ -5,6 +5,11 @@ import AppLayout from "../components/layout/AppLayout";
 import Loader from "../components/ui/Loader";
 import ErrorState from "../components/ui/ErrorState";
 
+const formatNumber = (value) => {
+  if (value === null || value === undefined) return "—";
+  return Number.isInteger(value) ? value : Math.round(value * 10) / 10;
+};
+
 export default function Analytics() {
   const { userId } = useAuth();
   const [range, setRange] = useState("weekly");
@@ -57,23 +62,23 @@ export default function Analytics() {
             </p>
             <div className="analytics-grid">
               <div className="card-stat">
-                <span className="card-stat-value">{data.totalChallengesAssigned ?? "—"}</span>
+                <span className="card-stat-value">{formatNumber(data.totalChallengesAssigned)}</span>
                 <span className="card-stat-label">Challenges Assigned</span>
               </div>
               <div className="card-stat">
-                <span className="card-stat-value">{data.totalChallengesCompleted ?? "—"}</span>
+                <span className="card-stat-value">{formatNumber(data.totalChallengesCompleted)}</span>
                 <span className="card-stat-label">Challenges Completed</span>
               </div>
               <div className="card-stat">
-                <span className="card-stat-value">{data.completionRatePercent ?? "—"}%</span>
+                <span className="card-stat-value">{formatNumber(data.completionRatePercent)}%</span>
                 <span className="card-stat-label">Completion Rate</span>
               </div>
               <div className="card-stat">
-                <span className="card-stat-value">{data.estimatedCaloriesBurned ?? "—"}</span>
+                <span className="card-stat-value">{formatNumber(data.estimatedCaloriesBurned)}</span>
                 <span className="card-stat-label">Calories Burned</span>
               </div>
               <div className="card-stat">
-                <span className="card-stat-value">{data.estimatedCaloriesConsumedTarget ?? "—"}</span>
+                <span className="card-stat-value">{formatNumber(data.estimatedCaloriesConsumedTarget)}</span>
                 <span className="card-stat-label">Calorie Target</span>
               </div>
             </div>

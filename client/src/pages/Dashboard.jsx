@@ -1,6 +1,5 @@
 import { useEffect, useState } from "react";
-import { useNavigate } from "react-router-dom";
-import { Flame, Dumbbell, CheckCircle2, Circle } from "lucide-react";
+import { Flame, CheckCircle2, Circle } from "lucide-react";
 import api from "../api/axios";
 import { useAuth } from "../context/AuthContext";
 import AppLayout from "../components/layout/AppLayout";
@@ -9,7 +8,6 @@ import ErrorState from "../components/ui/ErrorState";
 
 export default function Dashboard() {
   const { userId } = useAuth();
-  const navigate = useNavigate();
   const [data, setData] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(false);
@@ -85,7 +83,6 @@ export default function Dashboard() {
     todayChallenges,
     challengesCompletedToday,
     challengesTotalToday,
-    recommendedWorkout,
   } = data;
 
   return (
@@ -151,17 +148,6 @@ export default function Dashboard() {
             ))}
           </div>
         </div>
-
-        {recommendedWorkout && (
-          <div className="card" onClick={() => navigate(`/workouts/${recommendedWorkout.id}`)} role="button">
-            <div className="recommend-label icon-volt">
-              <Dumbbell className="h-4 w-4" />
-              <span className="recommend-label-text">Recommended Workout</span>
-            </div>
-            <h3 className="recommend-title">{recommendedWorkout.name}</h3>
-            <p className="recommend-description">{recommendedWorkout.description}</p>
-          </div>
-        )}
       </div>
     </AppLayout>
   );

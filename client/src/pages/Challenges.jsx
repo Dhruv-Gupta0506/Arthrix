@@ -40,11 +40,18 @@ export default function Challenges() {
 
   const handleComplete = async (userChallengeId) => {
     setCompletingId(userChallengeId);
+    setChallenges((prev) =>
+      prev.map((c) => (c.id === userChallengeId ? { ...c, completed: true } : c))
+    );
     try {
       await api.put(`/api/challenges/${userChallengeId}/complete`);
-      await fetchData();
+      const sRes = await api.get(`/api/challenges/streak/${userId}`);
+      setStreak(sRes.data?.data ?? 0);
     } catch (err) {
       console.error("Failed to complete challenge:", err);
+      setChallenges((prev) =>
+        prev.map((c) => (c.id === userChallengeId ? { ...c, completed: false } : c))
+      );
     } finally {
       setCompletingId(null);
     }

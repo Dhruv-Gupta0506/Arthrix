@@ -53,6 +53,56 @@
 }
 
 @layer components {
+
+  .plan-exercise-actions { @apply flex shrink-0 items-center gap-3; }
+
+  /* ---------- Meal Plan ---------- */
+  .meal-plan-body { @apply mt-6 flex flex-col gap-8; }
+  .meal-category-section { @apply flex flex-col gap-4; }
+  .meal-category-title { @apply font-display text-lg font-semibold; }
+  .meal-option-grid { @apply grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3; }
+
+  .meal-option-card {
+    @apply flex cursor-pointer flex-col gap-3 rounded-2xl border border-border bg-surface p-5
+           transition-all duration-200 hover:border-volt/30;
+  }
+  .meal-option-card-selected {
+    @apply flex cursor-pointer flex-col gap-3 rounded-2xl border border-volt bg-volt/5 p-5
+           transition-all duration-200;
+  }
+  .meal-option-header { @apply flex items-start justify-between gap-2; }
+  .meal-option-title { @apply font-display text-base font-semibold; }
+  .meal-option-desc { @apply text-sm text-ink-muted; }
+  .meal-macro-row { @apply flex flex-wrap items-center gap-3 text-xs text-ink-faint; }
+  .meal-view-link {
+    @apply flex w-fit items-center gap-1 text-xs font-medium text-volt hover:text-volt-dim;
+  }
+
+  .diet-toggle-row { @apply flex items-end gap-2; }
+
+  
+
+  /* ---------- Weekly Plan ---------- */
+  .plan-header { @apply mb-2; }
+  .plan-form { @apply flex flex-col gap-4; }
+  .plan-form-grid { @apply grid grid-cols-2 gap-4 lg:grid-cols-4; }
+  .plan-form-actions { @apply flex items-center gap-3; }
+  .plan-body { @apply mt-6 flex flex-col gap-4; }
+  .plan-day-card { @apply flex flex-col gap-4; }
+  .plan-day-header { @apply flex items-start justify-between; }
+  .plan-day-title { @apply font-display text-lg font-semibold; }
+  .plan-day-meta { @apply mt-1 text-xs text-ink-muted; }
+  .plan-day-progress { @apply font-mono text-lg font-semibold text-volt; }
+  .plan-exercise-list { @apply flex flex-col gap-2; }
+  .plan-exercise-item {
+    @apply flex cursor-pointer items-center justify-between gap-4 rounded-xl border border-border
+           bg-surface-hi px-4 py-3 transition-colors hover:border-volt/30;
+  }
+  .plan-exercise-info { @apply flex-1; }
+  .plan-exercise-title { @apply text-sm font-medium text-ink; }
+  .plan-exercise-title-done { @apply text-sm font-medium text-ink-muted line-through; }
+  .plan-exercise-desc { @apply mt-1 text-xs text-ink-faint; }
+  .plan-mark-btn { @apply btn-secondary shrink-0 px-3 py-2 text-xs; }
   /* ---------- Layout ---------- */
   .page-shell { @apply min-h-screen bg-void; }
   .container-arthrix { @apply mx-auto w-full max-w-7xl px-5 sm:px-8 lg:px-10; }

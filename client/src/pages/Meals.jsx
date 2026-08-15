@@ -1,45 +1,52 @@
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { Heart, Flame, Beef } from "lucide-react";
+import { Heart, Flame, Beef, Wheat, Droplet, ExternalLink } from "lucide-react";
 import api from "../api/axios";
 import { useAuth } from "../context/AuthContext";
 import AppLayout from "../components/layout/AppLayout";
 import Loader from "../components/ui/Loader";
 import ErrorState from "../components/ui/ErrorState";
 import EmptyState from "../components/ui/EmptyState";
-import { DIET_OPTIONS, MEAL_TYPE_OPTIONS, stripHtml } from "../lib/utils";
+import { stripHtml } from "../lib/utils";
+
+const DIET_OPTIONS = ["VEG", "NON_VEG"];
+const GOAL_OPTIONS = ["LOSE_FAT", "MAINTAIN", "GAIN_MUSCLE"];
+const CATEGORY_LABELS = {
+  BREAKFAST: "Breakfast",
+  LUNCH: "Lunch",
+  SNACKS: "Snacks",
+  DINNER: "Dinner",
+};
+
+const STORAGE_KEY = "arthrix_meal_plan";
 
 export default function Meals() {
   const { userId } = useAuth();
   const navigate = useNavigate();
 
-  const [meals, setMeals] = useState([]);
+  const [diet, setDiet] = useState("VEG");
+  const [goal, setGoal] = useState("MAINTAIN");
+
+  const [plan, setPlan] = useState(null);
+  const [selections, setSelections] = useState({});
   const [favoriteIds, setFavoriteIds] = useState(new Set());
-  const [loading, setLoading] = useState(true);
+
+  const [loading, setLoading] = useState(false);
   const [error, setError] = useState(false);
 
-  const [dietFilter, setDietFilter] = useState("");
-  const [mealTypeFilter, setMealTypeFilter] = useState("");
-
-  const fetchMeals = async () => {
-    setLoading(true);
-    setError(false);
+  useEffect(() => {
+    const saved = localStorage.getItem(STORAGE_KEY);
+    if (!saved) return;
     try {
-      const hasFilter = dietFilter || mealTypeFilter;
-      const url = hasFilter
-        ? `/api/meals/filter?${dietFilter ? `dietPreference=${dietFilter}&` : ""}${
-            mealTypeFilter ? `mealType=${mealTypeFilter}` : ""
-          }`
-        : "/api/meals";
-      const res = await api.get(url);
-      setMeals(res.data?.data ?? []);
+      const parsed = JSON.parse(saved);
+      setPlan(parsed.plan ?? null);
+      setSelections(parsed.selections ?? {});
+      setDiet(parsed.diet ?? "VEG");
+      setGoal(parsed.goal ?? "MAINTAIN");
     } catch (err) {
-      console.error("Failed to load meals:", err);
-      setError(true);
-    } finally {
-      setLoading(false);
+      console.error("Failed to restore saved meal plan:", err);
     }
-  };
+  }, []);
 
   const fetchFavorites = async () => {
     if (!userId) return;
@@ -53,17 +60,40 @@ export default function Meals() {
   };
 
   useEffect(() => {
-    fetchMeals();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [dietFilter, mealTypeFilter]);
-
-  useEffect(() => {
     fetchFavorites();
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [userId]);
 
+  const persist = (next) => {
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(next));
+  };
+
+  const generatePlan = async () => {
+    setLoading(true);
+    setError(false);
+    try {
+      const res = await api.get("/api/meals/plan", { params: { dietPreference: diet, goal } });
+      const newPlan = res.data?.data ?? null;
+      setPlan(newPlan);
+      setSelections({});
+      persist({ plan: newPlan, selections: {}, diet, goal });
+    } catch (err) {
+      console.error("Failed to generate meal plan:", err);
+      setError(true);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const selectMeal = (mealType, mealId) => {
+    const next = { ...selections, [mealType]: mealId };
+    setSelections(next);
+    persist({ plan, selections: next, diet, goal });
+  };
+
   const toggleFavorite = async (e, mealId) => {
     e.stopPropagation();
+    if (!userId) return;
     const isFav = favoriteIds.has(mealId);
     try {
       if (isFav) {
@@ -83,52 +113,96 @@ export default function Meals() {
 
   return (
     <AppLayout>
-      <div className="content-stack">
-        <div className="page-header-row">
-          <h1 className="page-title">Meals</h1>
-          <div className="filter-group">
-            <select value={dietFilter} onChange={(e) => setDietFilter(e.target.value)} className="select-inline">
-              <option value="">All Diets</option>
-              {DIET_OPTIONS.map((d) => (
-                <option key={d} value={d}>{d.replaceAll("_", " ")}</option>
+      <div className="plan-header">
+        <h1 className="page-title">Your Meal Options</h1>
+      </div>
+
+      <div className="plan-form card-flat">
+        <div className="plan-form-grid">
+          <div>
+            <label className="label-field">Goal</label>
+            <select value={goal} onChange={(e) => setGoal(e.target.value)} className="select-field">
+              {GOAL_OPTIONS.map((g) => (
+                <option key={g} value={g}>{g.replaceAll("_", " ")}</option>
               ))}
             </select>
-            <select value={mealTypeFilter} onChange={(e) => setMealTypeFilter(e.target.value)} className="select-inline">
-              <option value="">All Meal Types</option>
-              {MEAL_TYPE_OPTIONS.map((m) => (
-                <option key={m} value={m}>{m}</option>
-              ))}
-            </select>
+          </div>
+          <div className="diet-toggle-row">
+            {DIET_OPTIONS.map((d) => (
+              <button
+                key={d}
+                onClick={() => setDiet(d)}
+                className={diet === d ? "toggle-btn-active" : "toggle-btn"}
+              >
+                {d === "VEG" ? "Veg" : "Non-Veg"}
+              </button>
+            ))}
           </div>
         </div>
 
-        {loading && <Loader label="Loading meals..." />}
-        {!loading && error && <ErrorState message="Couldn't load meals." onRetry={fetchMeals} />}
-        {!loading && !error && meals.length === 0 && (
-          <EmptyState title="No meals found" description="Try changing your filters." />
-        )}
-
-        {!loading && !error && meals.length > 0 && (
-          <div className="item-grid">
-            {meals.map((m) => (
-              <div key={m.id} className="card-clickable" onClick={() => navigate(`/meals/${m.id}`)}>
-                <div className="item-card-header">
-                  <span className="badge-neutral">{m.mealType}</span>
-                  <button onClick={(e) => toggleFavorite(e, m.id)} className="favorite-btn">
-                    <Heart className={favoriteIds.has(m.id) ? "icon-favorite-active" : "icon-favorite"} />
-                  </button>
-                </div>
-                <h3 className="item-card-title">{m.name}</h3>
-                <p className="item-card-desc">{stripHtml(m.description)}</p>
-                <div className="item-meta-row">
-                  <span className="item-meta"><Flame className="h-3.5 w-3.5" /> {m.calories} cal</span>
-                  <span className="item-meta"><Beef className="h-3.5 w-3.5" /> {m.protein}g protein</span>
-                </div>
-              </div>
-            ))}
-          </div>
-        )}
+        <div className="plan-form-actions">
+          <button onClick={generatePlan} className="btn-primary" disabled={loading}>
+            {loading ? "Generating..." : "Generate New Meals"}
+          </button>
+        </div>
       </div>
+
+      {loading && <Loader label="Building your meal options..." />}
+      {!loading && error && <ErrorState message="Couldn't generate meal options." onRetry={generatePlan} />}
+      {!loading && !error && !plan && (
+        <EmptyState title="No meals yet" description="Set your goal and diet preference above, then generate." />
+      )}
+
+      {!loading && !error && plan && (
+        <div className="meal-plan-body">
+          {plan.categories.map((category) => (
+            <div key={category.mealType} className="meal-category-section">
+              <h2 className="meal-category-title">{CATEGORY_LABELS[category.mealType]} — Choose 1</h2>
+
+              {category.options.length === 0 && (
+                <EmptyState title="No meals found" description="Try a different goal or diet preference." />
+              )}
+
+              <div className="meal-option-grid">
+                {category.options.map((meal) => {
+                  const isSelected = selections[category.mealType] === meal.id;
+                  const isFav = favoriteIds.has(meal.id);
+                  return (
+                    <div
+                      key={meal.id}
+                      onClick={() => selectMeal(category.mealType, meal.id)}
+                      className={isSelected ? "meal-option-card-selected" : "meal-option-card"}
+                    >
+                      <div className="meal-option-header">
+                        <h3 className="meal-option-title">{meal.name}</h3>
+                        <button onClick={(e) => toggleFavorite(e, meal.id)} className="favorite-btn">
+                          <Heart className={isFav ? "icon-favorite-active" : "icon-favorite"} />
+                        </button>
+                      </div>
+
+                      <p className="meal-option-desc">{stripHtml(meal.description)}</p>
+
+                      <div className="meal-macro-row">
+                        <span className="item-meta"><Flame className="h-3.5 w-3.5" /> {meal.calories} kcal</span>
+                        <span className="item-meta"><Beef className="h-3.5 w-3.5" /> {meal.protein}g</span>
+                        <span className="item-meta"><Wheat className="h-3.5 w-3.5" /> {meal.carbs}g</span>
+                        <span className="item-meta"><Droplet className="h-3.5 w-3.5" /> {meal.fat}g</span>
+                      </div>
+
+                      <button
+                        onClick={(e) => { e.stopPropagation(); navigate(`/meals/${meal.id}`); }}
+                        className="meal-view-link"
+                      >
+                        <ExternalLink className="h-3.5 w-3.5" /> View details
+                      </button>
+                    </div>
+                  );
+                })}
+              </div>
+            </div>
+          ))}
+        </div>
+      )}
     </AppLayout>
   );
 }

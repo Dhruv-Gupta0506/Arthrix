@@ -15,6 +15,7 @@ import Chatbot from "./pages/Chatbot";
 import Profile from "./pages/Profile";
 import Settings from "./pages/Settings";
 
+
 function App() {
   return (
     <Routes>
@@ -27,6 +28,7 @@ function App() {
         <Route path="/dashboard" element={<Dashboard />} />
         <Route path="/workouts" element={<Workouts />} />
         <Route path="/workouts/:workoutId" element={<WorkoutDetail />} />
+        
         <Route path="/meals" element={<Meals />} />
         <Route path="/meals/:mealId" element={<MealDetail />} />
         <Route path="/favorites" element={<Favorites />} />
