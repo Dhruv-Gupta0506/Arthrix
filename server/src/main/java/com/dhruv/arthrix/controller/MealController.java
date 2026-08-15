@@ -1,7 +1,9 @@
 package com.dhruv.arthrix.controller;
 
 import com.dhruv.arthrix.dto.response.MealDTO;
+import com.dhruv.arthrix.dto.response.MealPlanDTO;
 import com.dhruv.arthrix.enums.DietPreference;
+import com.dhruv.arthrix.enums.FitnessGoal;
 import com.dhruv.arthrix.enums.MealType;
 import com.dhruv.arthrix.response.ApiResponse;
 import com.dhruv.arthrix.service.MealService;
@@ -47,10 +49,13 @@ public class MealController {
         return new ResponseEntity<>(response, HttpStatus.OK);
     }
 
-    @PostMapping("/sync-external")
-    public ResponseEntity<ApiResponse<Void>> syncMealsFromExternalApi() {
-        mealService.syncMealsFromExternalApi();
-        ApiResponse<Void> response = ApiResponse.success("Meals synced from external API successfully", null);
+    @GetMapping("/plan")
+    public ResponseEntity<ApiResponse<MealPlanDTO>> generateMealPlan(
+            @RequestParam(required = false) DietPreference dietPreference,
+            @RequestParam(required = false) FitnessGoal goal) {
+
+        MealPlanDTO plan = mealService.generateMealPlan(dietPreference, goal);
+        ApiResponse<MealPlanDTO> response = ApiResponse.success("Meal plan generated successfully", plan);
         return new ResponseEntity<>(response, HttpStatus.OK);
     }
 }

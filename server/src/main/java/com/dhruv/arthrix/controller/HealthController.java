@@ -7,23 +7,19 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
-import com.dhruv.arthrix.client.ExerciseClient;
-import com.dhruv.arthrix.dto.external.WgerExerciseResponse;
-import org.springframework.beans.factory.annotation.Autowired;
 
 @RestController
 @RequestMapping("/api/health")
 public class HealthController {
+
     @GetMapping
-    public ResponseEntity<ApiResponse<String>> checkHealth(){
-        ApiResponse<String> response=ApiResponse.success("Arthrix Backend is running smoothly!","v1.0.0");
+    public ResponseEntity<ApiResponse<String>> checkHealth() {
+        ApiResponse<String> response = ApiResponse.success("Arthrix Backend is running smoothly!", "v1.0.0");
         return new ResponseEntity<>(response, HttpStatus.OK);
     }
 
     @GetMapping("/test-error")
-    public ResponseEntity<ApiResponse<Void>> testError(){
+    public ResponseEntity<ApiResponse<Void>> testError() {
         throw new ResourceNotFoundException("Test Exception: Triggered deliberately to test GlobalExceptionHandler");
     }
-
-
 }

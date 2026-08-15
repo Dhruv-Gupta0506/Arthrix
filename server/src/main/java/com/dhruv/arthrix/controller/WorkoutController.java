@@ -1,6 +1,7 @@
 package com.dhruv.arthrix.controller;
 
 import com.dhruv.arthrix.dto.response.WorkoutDTO;
+import com.dhruv.arthrix.dto.response.WorkoutPlanDTO;
 import com.dhruv.arthrix.enums.Difficulty;
 import com.dhruv.arthrix.enums.FitnessGoal;
 import com.dhruv.arthrix.enums.MuscleGroup;
@@ -51,10 +52,15 @@ public class WorkoutController {
         return new ResponseEntity<>(response, HttpStatus.OK);
     }
 
-    @PostMapping("/sync-external")
-    public ResponseEntity<ApiResponse<Void>> syncWorkoutsFromExternalApi() {
-        workoutService.syncWorkoutsFromExternalApi();
-        ApiResponse<Void> response = ApiResponse.success("Workouts synced from external API successfully", null);
+    @GetMapping("/plan")
+    public ResponseEntity<ApiResponse<WorkoutPlanDTO>> generateWorkoutPlan(
+            @RequestParam(required = false) FitnessGoal goal,
+            @RequestParam(required = false) Difficulty difficulty,
+            @RequestParam(required = false) WorkoutLocation location,
+            @RequestParam(defaultValue = "3") int daysPerWeek) {
+
+        WorkoutPlanDTO plan = workoutService.generateWorkoutPlan(goal, difficulty, location, daysPerWeek);
+        ApiResponse<WorkoutPlanDTO> response = ApiResponse.success("Workout plan generated successfully", plan);
         return new ResponseEntity<>(response, HttpStatus.OK);
     }
 }

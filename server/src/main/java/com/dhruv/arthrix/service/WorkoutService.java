@@ -1,6 +1,7 @@
 package com.dhruv.arthrix.service;
 
 import com.dhruv.arthrix.dto.response.WorkoutDTO;
+import com.dhruv.arthrix.dto.response.WorkoutPlanDTO;
 import com.dhruv.arthrix.enums.Difficulty;
 import com.dhruv.arthrix.enums.FitnessGoal;
 import com.dhruv.arthrix.enums.MuscleGroup;
@@ -13,5 +14,5 @@ public interface WorkoutService {
     List<WorkoutDTO> getAllWorkouts();
     WorkoutDTO getWorkoutById(Long workoutId);
     List<WorkoutDTO> filterWorkouts(FitnessGoal goal, Difficulty difficulty, MuscleGroup muscleGroup, WorkoutLocation location);
-    void syncWorkoutsFromExternalApi();
+    WorkoutPlanDTO generateWorkoutPlan(FitnessGoal goal, Difficulty difficulty, WorkoutLocation location, int daysPerWeek);
 }

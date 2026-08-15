@@ -1,8 +1,8 @@
 package com.dhruv.arthrix.service.impl;
 
-import com.dhruv.arthrix.client.ExerciseClient;
-import com.dhruv.arthrix.dto.external.WgerExerciseResponse;
+import com.dhruv.arthrix.dto.response.DayPlanDTO;
 import com.dhruv.arthrix.dto.response.WorkoutDTO;
+import com.dhruv.arthrix.dto.response.WorkoutPlanDTO;
 import com.dhruv.arthrix.entity.Workout;
 import com.dhruv.arthrix.enums.Difficulty;
 import com.dhruv.arthrix.enums.FitnessGoal;
@@ -17,6 +17,8 @@ import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -25,13 +27,21 @@ public class WorkoutServiceImpl implements WorkoutService {
 
     private static final Logger logger = LogManager.getLogger(WorkoutServiceImpl.class);
 
+    // Fixed weekly split — repeats to fill however many days/week the user picks.
+    private static final List<List<MuscleGroup>> WEEKLY_SPLIT = List.of(
+            List.of(MuscleGroup.CHEST, MuscleGroup.TRICEPS, MuscleGroup.SHOULDERS),
+            List.of(MuscleGroup.BACK, MuscleGroup.BICEPS),
+            List.of(MuscleGroup.LEGS, MuscleGroup.CORE)
+    );
+
+    private static final int EXERCISES_PER_MUSCLE_GROUP = 3;
+    private static final int MAX_DAYS = 7;
+
     private final WorkoutRepository workoutRepository;
-    private final ExerciseClient exerciseClient;
 
     @Autowired
-    public WorkoutServiceImpl(WorkoutRepository workoutRepository, ExerciseClient exerciseClient) {
+    public WorkoutServiceImpl(WorkoutRepository workoutRepository) {
         this.workoutRepository = workoutRepository;
-        this.exerciseClient = exerciseClient;
     }
 
     @Override
@@ -63,42 +73,59 @@ public class WorkoutServiceImpl implements WorkoutService {
     }
 
     @Override
-    public void syncWorkoutsFromExternalApi() {
-        logger.info("Starting workout sync from Wger external API");
+    public WorkoutPlanDTO generateWorkoutPlan(FitnessGoal goal, Difficulty difficulty, WorkoutLocation location, int daysPerWeek) {
+        int totalDays = daysPerWeek <= 0 ? 3 : Math.min(daysPerWeek, MAX_DAYS);
 
-        List<WgerExerciseResponse.WgerExerciseResult> results = exerciseClient.fetchAllExercises();
-        logger.debug("Fetched {} raw exercise results from Wger", results.size());
+        List<DayPlanDTO> days = new ArrayList<>();
 
-        int savedCount = 0;
-        int skippedCount = 0;
+        for (int day = 1; day <= totalDays; day++) {
+            List<MuscleGroup> muscleGroupsForDay = WEEKLY_SPLIT.get((day - 1) % WEEKLY_SPLIT.size());
+            List<WorkoutDTO> exercises = new ArrayList<>();
 
-        for (WgerExerciseResponse.WgerExerciseResult result : results) {
-            String englishName = null;
-            String englishDescription = null;
-
-            for (WgerExerciseResponse.WgerTranslation translation : result.getTranslations()) {
-                if (translation.getLanguage() == 2) {
-                    englishName = translation.getName();
-                    englishDescription = translation.getDescription();
-                    break;
-                }
+            for (MuscleGroup muscleGroup : muscleGroupsForDay) {
+                exercises.addAll(pickExercisesForMuscleGroup(goal, difficulty, muscleGroup, location));
             }
 
-            if (englishName == null || englishName.isBlank()) {
-                skippedCount++;
-                continue;
-            }
-
-            Workout workout = new Workout();
-            workout.setName(englishName);
-            workout.setDescription(englishDescription);
-            workout.setDifficulty(Difficulty.BEGINNER);
-            workout.setFitnessGoal(FitnessGoal.MAINTAIN);
-
-            workoutRepository.save(workout);
-            savedCount++;
+            days.add(new DayPlanDTO(day, muscleGroupsForDay, exercises));
         }
 
-        logger.info("Workout sync complete — saved={}, skipped (no English translation)={}", savedCount, skippedCount);
+        logger.info("Generated {}-day plan for goal={}, difficulty={}, location={}", totalDays, goal, difficulty, location);
+        return new WorkoutPlanDTO(days);
+    }
+
+    /**
+     * Pool is difficulty + muscleGroup + location — NOT goal. The seed data ties specific
+     * exercise names to specific goals (e.g. only 2 CHEST/GYM exercises are tagged GAIN_MUSCLE),
+     * so hard-filtering by goal here starves the pool down to 1-2 exercises per day. Instead,
+     * goal-matching exercises are pushed to the front of the pool, and the rest fill in behind
+     * them — so the plan stays relevant to the goal but still has enough exercises to rotate.
+     */
+    private List<WorkoutDTO> pickExercisesForMuscleGroup(FitnessGoal goal, Difficulty difficulty, MuscleGroup muscleGroup, WorkoutLocation location) {
+        List<Workout> pool = workoutRepository.filterWorkouts(null, difficulty, muscleGroup, location);
+
+        if (pool.isEmpty()) {
+            pool = workoutRepository.filterWorkouts(null, difficulty, muscleGroup, null);
+        }
+        if (pool.isEmpty()) {
+            pool = workoutRepository.filterWorkouts(null, null, muscleGroup, location);
+        }
+
+        List<Workout> goalMatched = pool.stream()
+                .filter(w -> w.getFitnessGoal() == goal)
+                .collect(Collectors.toList());
+        List<Workout> rest = pool.stream()
+                .filter(w -> w.getFitnessGoal() != goal)
+                .collect(Collectors.toList());
+
+        Collections.shuffle(goalMatched);
+        Collections.shuffle(rest);
+
+        List<Workout> ordered = new ArrayList<>(goalMatched);
+        ordered.addAll(rest);
+
+        return ordered.stream()
+                .limit(EXERCISES_PER_MUSCLE_GROUP)
+                .map(WorkoutMapper::toDTO)
+                .collect(Collectors.toList());
     }
 }

@@ -1,8 +1,8 @@
 package com.dhruv.arthrix.service.impl;
 
-import com.dhruv.arthrix.client.NutritionClient;
-import com.dhruv.arthrix.dto.external.NutritionApiResponse;
+import com.dhruv.arthrix.dto.response.MealCategoryDTO;
 import com.dhruv.arthrix.dto.response.MealDTO;
+import com.dhruv.arthrix.dto.response.MealPlanDTO;
 import com.dhruv.arthrix.entity.Meal;
 import com.dhruv.arthrix.enums.DietPreference;
 import com.dhruv.arthrix.enums.FitnessGoal;
@@ -16,6 +16,8 @@ import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -24,13 +26,18 @@ public class MealServiceImpl implements MealService {
 
     private static final Logger logger = LogManager.getLogger(MealServiceImpl.class);
 
+    // Fixed category order shown in the meal plan — matches a normal day's meals.
+    private static final List<MealType> CATEGORY_ORDER = List.of(
+            MealType.BREAKFAST, MealType.LUNCH, MealType.SNACKS, MealType.DINNER
+    );
+
+    private static final int OPTIONS_PER_CATEGORY = 3;
+
     private final MealRepository mealRepository;
-    private final NutritionClient nutritionClient;
 
     @Autowired
-    public MealServiceImpl(MealRepository mealRepository, NutritionClient nutritionClient) {
+    public MealServiceImpl(MealRepository mealRepository) {
         this.mealRepository = mealRepository;
-        this.nutritionClient = nutritionClient;
     }
 
     @Override
@@ -72,43 +79,44 @@ public class MealServiceImpl implements MealService {
     }
 
     @Override
-    public void syncMealsFromExternalApi() {
-        logger.info("Starting meal sync from Open Food Facts external API");
+    public MealPlanDTO generateMealPlan(DietPreference dietPreference, FitnessGoal goal) {
+        DietPreference diet = dietPreference == null ? DietPreference.VEG : dietPreference;
 
-        List<NutritionApiResponse.Product> products = nutritionClient.fetchAllMeals();
-        logger.debug("Fetched {} raw products from Open Food Facts", products.size());
-
-        int savedCount = 0;
-        int skippedCount = 0;
-
-        for (NutritionApiResponse.Product product : products) {
-            String name = product.getProductName();
-            if (name == null || name.isBlank()) {
-                skippedCount++;
-                continue;
-            }
-
-            NutritionApiResponse.Nutriments nutriments = product.getNutriments();
-            if (nutriments == null) {
-                skippedCount++;
-                continue;
-            }
-
-            Meal meal = new Meal();
-            meal.setName(name);
-            meal.setDescription(null);
-            meal.setMealType(MealType.LUNCH);
-            meal.setDietPreference(DietPreference.VEG);
-            meal.setFitnessGoal(FitnessGoal.MAINTAIN);
-            meal.setCalories(nutriments.getEnergyKcal100g());
-            meal.setProtein(nutriments.getProteins100g());
-            meal.setCarbs(nutriments.getCarbohydrates100g());
-            meal.setFat(nutriments.getFat100g());
-
-            mealRepository.save(meal);
-            savedCount++;
+        List<MealCategoryDTO> categories = new ArrayList<>();
+        for (MealType mealType : CATEGORY_ORDER) {
+            categories.add(new MealCategoryDTO(mealType, pickOptionsForCategory(diet, goal, mealType)));
         }
 
-        logger.info("Meal sync complete — saved={}, skipped (missing name/nutriments)={}", savedCount, skippedCount);
+        logger.info("Generated meal plan for dietPreference={}, goal={}", diet, goal);
+        return new MealPlanDTO(categories);
+    }
+
+    /**
+     * Pool is dietPreference + mealType only — NOT goal. Same reasoning as the workout
+     * plan generator: the seed data ties specific meals to specific goals, so a hard goal
+     * filter starves the pool to 1 option. Instead, goal-matching meals are pushed to the
+     * front and the rest fill in behind them, so options stay relevant but there's always
+     * enough to rotate.
+     */
+    private List<MealDTO> pickOptionsForCategory(DietPreference dietPreference, FitnessGoal goal, MealType mealType) {
+        List<Meal> pool = mealRepository.findByDietPreferenceAndMealType(dietPreference, mealType);
+
+        List<Meal> goalMatched = pool.stream()
+                .filter(m -> m.getFitnessGoal() == goal)
+                .collect(Collectors.toList());
+        List<Meal> rest = pool.stream()
+                .filter(m -> m.getFitnessGoal() != goal)
+                .collect(Collectors.toList());
+
+        Collections.shuffle(goalMatched);
+        Collections.shuffle(rest);
+
+        List<Meal> ordered = new ArrayList<>(goalMatched);
+        ordered.addAll(rest);
+
+        return ordered.stream()
+                .limit(OPTIONS_PER_CATEGORY)
+                .map(MealMapper::toDTO)
+                .collect(Collectors.toList());
     }
 }
