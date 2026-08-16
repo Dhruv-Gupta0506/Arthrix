@@ -1,6 +1,7 @@
 import { useEffect, useRef, useState } from "react";
 import { useNavigate, useSearchParams } from "react-router-dom";
 import { useAuth } from "../context/AuthContext";
+import { isProfileComplete } from "../lib/utils";
 
 export default function OAuthSuccess() {
   const [searchParams] = useSearchParams();
@@ -23,8 +24,8 @@ export default function OAuthSuccess() {
 
     const run = async () => {
       try {
-        await login(token);
-        navigate("/dashboard", { replace: true });
+        const { profile } = await login(token);
+        navigate(isProfileComplete(profile) ? "/dashboard" : "/onboarding", { replace: true });
       } catch (err) {
         console.error("Login failed:", err);
         setError("Something went wrong signing you in.");

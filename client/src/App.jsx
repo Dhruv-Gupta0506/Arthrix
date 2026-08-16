@@ -3,6 +3,7 @@ import ProtectedRoute from "./components/layout/ProtectedRoute";
 
 import LandingPage from "./pages/LandingPage";
 import OAuthSuccess from "./pages/OAuthSuccess";
+import Onboarding from "./pages/Onboarding";
 import Dashboard from "./pages/Dashboard";
 import Workouts from "./pages/Workouts";
 import WorkoutDetail from "./pages/WorkoutDetail";
@@ -25,10 +26,11 @@ function App() {
 
       {/* Protected — requires a valid token, enforced by ProtectedRoute */}
       <Route element={<ProtectedRoute />}>
+        <Route path="/onboarding" element={<Onboarding />} />
         <Route path="/dashboard" element={<Dashboard />} />
         <Route path="/workouts" element={<Workouts />} />
         <Route path="/workouts/:workoutId" element={<WorkoutDetail />} />
-        
+
         <Route path="/meals" element={<Meals />} />
         <Route path="/meals/:mealId" element={<MealDetail />} />
         <Route path="/favorites" element={<Favorites />} />

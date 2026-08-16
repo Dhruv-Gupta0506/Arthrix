@@ -19,3 +19,15 @@ export function stripHtml(html) {
   if (!html) return "";
   return html.replace(/<[^>]*>/g, " ").replace(/\s+/g, " ").trim();
 }
+
+export function isProfileComplete(profile) {
+  if (!profile) return false;
+  return (
+    profile.age != null &&
+    profile.gender != null &&
+    profile.height != null &&
+    profile.weight != null &&
+    profile.dietPreference != null &&
+    profile.fitnessGoal != null
+  );
+}

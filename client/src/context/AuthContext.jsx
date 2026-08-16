@@ -36,12 +36,15 @@ export function AuthProvider({ children }) {
   }, []);
 
   const fetchProfile = useCallback(async (id) => {
-    if (!id) return;
+    if (!id) return null;
     try {
       const res = await api.get(`/api/users/${id}/profile`);
-      setUser(res.data?.data ?? null);
+      const profile = res.data?.data ?? null;
+      setUser(profile);
+      return profile;
     } catch (err) {
       console.error("Failed to fetch profile:", err);
+      return null;
     }
   }, []);
 
@@ -81,7 +84,8 @@ export function AuthProvider({ children }) {
       localStorage.setItem(TOKEN_KEY, jwt);
       setToken(jwt);
       const id = decodeAndSetUserId(jwt);
-      await fetchProfile(id);
+      const profile = await fetchProfile(id);
+      return { userId: id, profile };
     },
     [decodeAndSetUserId, fetchProfile]
   );
