@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { Heart, Flame, Beef, Wheat, Droplet, ExternalLink } from "lucide-react";
+import { Heart, Flame, Beef, Wheat, Droplet, ExternalLink, CheckCircle2, Coffee, Soup, Cookie, Moon } from "lucide-react";
 import api from "../api/axios";
 import { useAuth } from "../context/AuthContext";
 import AppLayout from "../components/layout/AppLayout";
@@ -16,6 +16,12 @@ const CATEGORY_LABELS = {
   LUNCH: "Lunch",
   SNACKS: "Snacks",
   DINNER: "Dinner",
+};
+const CATEGORY_ICONS = {
+  BREAKFAST: Coffee,
+  LUNCH: Soup,
+  SNACKS: Cookie,
+  DINNER: Moon,
 };
 
 const STORAGE_KEY = "arthrix_meal_plan";
@@ -115,33 +121,37 @@ export default function Meals() {
     <AppLayout>
       <div className="plan-header">
         <h1 className="page-title">Your Meal Options</h1>
+        <p className="plan-subtitle">Pick your diet and goal, then choose one meal per slot.</p>
       </div>
 
       <div className="plan-form card-flat">
         <div className="plan-form-grid">
           <div>
-            <label className="label-field">Goal</label>
+            <label className="plan-form-label-row">Goal</label>
             <select value={goal} onChange={(e) => setGoal(e.target.value)} className="select-field">
               {GOAL_OPTIONS.map((g) => (
                 <option key={g} value={g}>{g.replaceAll("_", " ")}</option>
               ))}
             </select>
           </div>
-          <div className="diet-toggle-row">
-            {DIET_OPTIONS.map((d) => (
-              <button
-                key={d}
-                onClick={() => setDiet(d)}
-                className={diet === d ? "toggle-btn-active" : "toggle-btn"}
-              >
-                {d === "VEG" ? "Veg" : "Non-Veg"}
-              </button>
-            ))}
+          <div>
+            <label className="plan-form-label-row">Diet</label>
+            <div className="diet-toggle-row">
+              {DIET_OPTIONS.map((d) => (
+                <button
+                  key={d}
+                  onClick={() => setDiet(d)}
+                  className={diet === d ? "toggle-btn-active" : "toggle-btn"}
+                >
+                  {d === "VEG" ? "Veg" : "Non-Veg"}
+                </button>
+              ))}
+            </div>
           </div>
         </div>
 
         <div className="plan-form-actions">
-          <button onClick={generatePlan} className="btn-primary" disabled={loading}>
+          <button onClick={generatePlan} className="btn-primary w-full sm:w-auto" disabled={loading}>
             {loading ? "Generating..." : "Generate New Meals"}
           </button>
         </div>
@@ -155,52 +165,66 @@ export default function Meals() {
 
       {!loading && !error && plan && (
         <div className="meal-plan-body">
-          {plan.categories.map((category) => (
-            <div key={category.mealType} className="meal-category-section">
-              <h2 className="meal-category-title">{CATEGORY_LABELS[category.mealType]} — Choose 1</h2>
+          {plan.categories.map((category) => {
+            const CategoryIcon = CATEGORY_ICONS[category.mealType] ?? Soup;
+            return (
+              <div key={category.mealType} className="meal-category-section">
+                <div className="meal-category-header">
+                  <span className="meal-category-icon">
+                    <CategoryIcon className="h-4 w-4" />
+                  </span>
+                  <div>
+                    <h2 className="meal-category-title">{CATEGORY_LABELS[category.mealType]}</h2>
+                    <p className="meal-category-count">Choose 1 · {category.options.length} options</p>
+                  </div>
+                </div>
 
-              {category.options.length === 0 && (
-                <EmptyState title="No meals found" description="Try a different goal or diet preference." />
-              )}
+                {category.options.length === 0 && (
+                  <EmptyState title="No meals found" description="Try a different goal or diet preference." />
+                )}
 
-              <div className="meal-option-grid">
-                {category.options.map((meal) => {
-                  const isSelected = selections[category.mealType] === meal.id;
-                  const isFav = favoriteIds.has(meal.id);
-                  return (
-                    <div
-                      key={meal.id}
-                      onClick={() => selectMeal(category.mealType, meal.id)}
-                      className={isSelected ? "meal-option-card-selected" : "meal-option-card"}
-                    >
-                      <div className="meal-option-header">
-                        <h3 className="meal-option-title">{meal.name}</h3>
-                        <button onClick={(e) => toggleFavorite(e, meal.id)} className="favorite-btn">
-                          <Heart className={isFav ? "icon-favorite-active" : "icon-favorite"} />
+                <div className="meal-option-grid">
+                  {category.options.map((meal) => {
+                    const isSelected = selections[category.mealType] === meal.id;
+                    const isFav = favoriteIds.has(meal.id);
+                    return (
+                      <div
+                        key={meal.id}
+                        onClick={() => selectMeal(category.mealType, meal.id)}
+                        className={isSelected ? "meal-option-card-selected" : "meal-option-card"}
+                      >
+                        <div className="meal-option-header">
+                          <div className="flex min-w-0 items-center gap-1.5">
+                            <h3 className="meal-option-title">{meal.name}</h3>
+                            {isSelected && <CheckCircle2 className="h-4 w-4 shrink-0 text-volt" />}
+                          </div>
+                          <button onClick={(e) => toggleFavorite(e, meal.id)} className="favorite-btn">
+                            <Heart className={isFav ? "icon-favorite-active" : "icon-favorite"} />
+                          </button>
+                        </div>
+
+                        <p className="meal-option-desc">{stripHtml(meal.description)}</p>
+
+                        <div className="meal-macro-row">
+                          <span className="macro-chip"><Flame className="h-3 w-3" /> {meal.calories} kcal</span>
+                          <span className="macro-chip"><Beef className="h-3 w-3" /> {meal.protein}g</span>
+                          <span className="macro-chip"><Wheat className="h-3 w-3" /> {meal.carbs}g</span>
+                          <span className="macro-chip"><Droplet className="h-3 w-3" /> {meal.fat}g</span>
+                        </div>
+
+                        <button
+                          onClick={(e) => { e.stopPropagation(); navigate(`/meals/${meal.id}`); }}
+                          className="meal-view-link"
+                        >
+                          <ExternalLink className="h-3.5 w-3.5" /> View details
                         </button>
                       </div>
-
-                      <p className="meal-option-desc">{stripHtml(meal.description)}</p>
-
-                      <div className="meal-macro-row">
-                        <span className="item-meta"><Flame className="h-3.5 w-3.5" /> {meal.calories} kcal</span>
-                        <span className="item-meta"><Beef className="h-3.5 w-3.5" /> {meal.protein}g</span>
-                        <span className="item-meta"><Wheat className="h-3.5 w-3.5" /> {meal.carbs}g</span>
-                        <span className="item-meta"><Droplet className="h-3.5 w-3.5" /> {meal.fat}g</span>
-                      </div>
-
-                      <button
-                        onClick={(e) => { e.stopPropagation(); navigate(`/meals/${meal.id}`); }}
-                        className="meal-view-link"
-                      >
-                        <ExternalLink className="h-3.5 w-3.5" /> View details
-                      </button>
-                    </div>
-                  );
-                })}
+                    );
+                  })}
+                </div>
               </div>
-            </div>
-          ))}
+            );
+          })}
         </div>
       )}
     </AppLayout>

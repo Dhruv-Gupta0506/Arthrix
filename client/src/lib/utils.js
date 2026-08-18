@@ -5,7 +5,10 @@ export function cn(...inputs) {
   return twMerge(clsx(inputs));
 }
 
-export const API_BASE_URL = "http://localhost:8080";
+// Set VITE_API_BASE_URL in your Vercel project's environment variables,
+// pointing at your Render backend URL (e.g. https://arthrix-api.onrender.com).
+// Falls back to localhost for local dev.
+export const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || "http://localhost:8080";
 export const TOKEN_KEY = "arthrix_token";
 export const GOOGLE_LOGIN_URL = `${API_BASE_URL}/oauth2/authorization/google`;
 

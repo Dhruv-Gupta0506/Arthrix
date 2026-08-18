@@ -1,12 +1,18 @@
 import { useState, useRef, useEffect } from "react";
-import { Send } from "lucide-react";
+import { Send, Bot, User, Sparkles } from "lucide-react";
 import api from "../api/axios";
 import { useAuth } from "../context/AuthContext";
 import AppLayout from "../components/layout/AppLayout";
 import { formatChatText } from "../lib/chatFormat";
 
+const SUGGESTIONS = [
+  "Suggest a beginner push day",
+  "How much protein do I need?",
+  "Best exercises for core strength",
+];
+
 export default function Chatbot() {
-  const { userId } = useAuth();
+  const { userId, user } = useAuth();
   const [messages, setMessages] = useState([]);
   const [input, setInput] = useState("");
   const [sending, setSending] = useState(false);
@@ -14,17 +20,13 @@ export default function Chatbot() {
 
   useEffect(() => {
     scrollRef.current?.scrollTo({ top: scrollRef.current.scrollHeight, behavior: "smooth" });
-  }, [messages]);
+  }, [messages, sending]);
 
-  const handleSend = async (e) => {
-    e.preventDefault();
-    const text = input.trim();
+  const sendMessage = async (text) => {
     if (!text || sending) return;
-
     setMessages((prev) => [...prev, { role: "user", text }]);
     setInput("");
     setSending(true);
-
     try {
       const res = await api.post(`/api/chat/${userId}`, { message: text });
       const reply = res.data?.data ?? "Sorry, I didn't catch that.";
@@ -37,25 +39,80 @@ export default function Chatbot() {
     }
   };
 
+  const handleSend = (e) => {
+    e.preventDefault();
+    sendMessage(input.trim());
+  };
+
   return (
     <AppLayout>
       <div className="content-stack">
-        <h1 className="page-title">AI Coach</h1>
+        <div className="chat-header-row">
+          <div className="chat-header-info">
+            <span className="chat-header-avatar">
+              <Bot className="h-5 w-5" />
+            </span>
+            <div>
+              <p className="chat-header-name">Arthrix Coach</p>
+              <span className="chat-header-status">
+                <span className="chat-status-dot" /> Knows your profile
+              </span>
+            </div>
+          </div>
+        </div>
 
         <div className="chat-shell">
           <div ref={scrollRef} className="chat-scroll">
             {messages.length === 0 && (
               <div className="chat-empty">
+                <span className="chat-empty-avatar">
+                  <Sparkles className="h-6 w-6" />
+                </span>
                 <p className="font-display text-lg">Ask me anything</p>
                 <p className="text-sm">Workout form, nutrition, or your plan — I know your profile.</p>
+                <div className="chat-suggestions">
+                  {SUGGESTIONS.map((s) => (
+                    <button key={s} onClick={() => sendMessage(s)} className="chat-suggestion-chip">
+                      {s}
+                    </button>
+                  ))}
+                </div>
               </div>
             )}
+
             {messages.map((m, i) => (
-              <div key={i} className={m.role === "user" ? "bubble-user" : "bubble-ai"}>
-                {m.role === "user" ? m.text : formatChatText(m.text)}
+              <div key={i} className={m.role === "user" ? "chat-row chat-row-user" : "chat-row"}>
+                {m.role === "user" ? (
+                  user?.profilePictureUrl ? (
+                    <img src={user.profilePictureUrl} alt="" className="chat-avatar-user" />
+                  ) : (
+                    <span className="chat-avatar-user">
+                      <User className="h-3.5 w-3.5" />
+                    </span>
+                  )
+                ) : (
+                  <span className="chat-avatar-ai">
+                    <Bot className="h-3.5 w-3.5" />
+                  </span>
+                )}
+                <div className={m.role === "user" ? "bubble-user" : "bubble-ai"}>
+                  {m.role === "user" ? m.text : formatChatText(m.text)}
+                </div>
               </div>
             ))}
-            {sending && <p className="bubble-ai">Thinking...</p>}
+
+            {sending && (
+              <div className="chat-row">
+                <span className="chat-avatar-ai">
+                  <Bot className="h-3.5 w-3.5" />
+                </span>
+                <div className="typing-bubble">
+                  <span className="typing-dot" style={{ animationDelay: "0ms" }} />
+                  <span className="typing-dot" style={{ animationDelay: "150ms" }} />
+                  <span className="typing-dot" style={{ animationDelay: "300ms" }} />
+                </div>
+              </div>
+            )}
           </div>
 
           <form onSubmit={handleSend} className="chat-input-row">

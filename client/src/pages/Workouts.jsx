@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { CheckCircle2, Circle, RefreshCcw, Heart } from "lucide-react";
+import { CheckCircle2, Circle, RefreshCcw, Heart, Target, Gauge, MapPin, CalendarRange } from "lucide-react";
 import api from "../api/axios";
 import { useAuth } from "../context/AuthContext";
 import AppLayout from "../components/layout/AppLayout";
@@ -141,12 +141,15 @@ export default function Workouts() {
     <AppLayout>
       <div className="plan-header">
         <h1 className="page-title">Weekly Workout Plan</h1>
+        <p className="plan-subtitle">Set your preferences and let Arthrix build the week.</p>
       </div>
 
       <div className="plan-form card-flat">
         <div className="plan-form-grid">
           <div>
-            <label className="label-field">Goal</label>
+            <label className="plan-form-label-row">
+              <Target className="h-3.5 w-3.5" /> Goal
+            </label>
             <select value={goal} onChange={(e) => setGoal(e.target.value)} className="select-field">
               {GOAL_OPTIONS.map((g) => (
                 <option key={g} value={g}>{g.replaceAll("_", " ")}</option>
@@ -154,7 +157,9 @@ export default function Workouts() {
             </select>
           </div>
           <div>
-            <label className="label-field">Level</label>
+            <label className="plan-form-label-row">
+              <Gauge className="h-3.5 w-3.5" /> Level
+            </label>
             <select value={difficulty} onChange={(e) => setDifficulty(e.target.value)} className="select-field">
               {DIFFICULTY_OPTIONS.map((d) => (
                 <option key={d} value={d}>{d}</option>
@@ -162,7 +167,9 @@ export default function Workouts() {
             </select>
           </div>
           <div>
-            <label className="label-field">Location</label>
+            <label className="plan-form-label-row">
+              <MapPin className="h-3.5 w-3.5" /> Location
+            </label>
             <select value={location} onChange={(e) => setLocation(e.target.value)} className="select-field">
               {LOCATION_OPTIONS.map((l) => (
                 <option key={l} value={l}>{l === "GYM" ? "Gym" : "Home"}</option>
@@ -170,7 +177,9 @@ export default function Workouts() {
             </select>
           </div>
           <div>
-            <label className="label-field">Days / Week</label>
+            <label className="plan-form-label-row">
+              <CalendarRange className="h-3.5 w-3.5" /> Days / Week
+            </label>
             <input
               type="number"
               min={1}
@@ -183,11 +192,11 @@ export default function Workouts() {
         </div>
 
         <div className="plan-form-actions">
-          <button onClick={generatePlan} className="btn-primary" disabled={loading}>
+          <button onClick={generatePlan} className="btn-primary w-full sm:w-auto" disabled={loading}>
             {loading ? "Generating..." : "Generate New Plan"}
           </button>
           {plan && (
-            <button onClick={resetProgress} className="btn-secondary">
+            <button onClick={resetProgress} className="btn-secondary w-full sm:w-auto">
               <RefreshCcw className="h-4 w-4" /> Reset Progress
             </button>
           )}
@@ -202,28 +211,38 @@ export default function Workouts() {
 
       {!loading && !error && plan && (
         <div className="plan-body">
-          <div className="tab-row">
-            {plan.days.map((d) => (
-              <button
-                key={d.dayNumber}
-                onClick={() => selectDay(d.dayNumber)}
-                className={d.dayNumber === activeDay ? "tab-btn-active" : "tab-btn"}
-              >
-                Day {d.dayNumber}
-              </button>
-            ))}
+          <div className="day-tab-row">
+            {plan.days.map((d) => {
+              const isActive = d.dayNumber === activeDay;
+              const pct = dayProgress(d);
+              return (
+                <button
+                  key={d.dayNumber}
+                  onClick={() => selectDay(d.dayNumber)}
+                  className={isActive ? "day-tab-active" : "day-tab"}
+                >
+                  <span className={isActive ? "day-tab-label-active" : "day-tab-label"}>Day</span>
+                  <span className={isActive ? "day-tab-value-active" : "day-tab-value"}>
+                    {d.dayNumber} · {pct}%
+                  </span>
+                </button>
+              );
+            })}
           </div>
 
           {activeDayPlan && (
             <div className="plan-day-card card-flat">
               <div className="plan-day-header">
-                <div>
+                <div className="plan-day-header-info">
                   <h2 className="plan-day-title">
                     Day {activeDayPlan.dayNumber} — {activeDayPlan.muscleGroups.map(formatMuscleGroup).join(" & ")}
                   </h2>
-                  <p className="plan-day-meta">
-                    {location === "GYM" ? "Gym" : "Home"}, {goal.replaceAll("_", " ")}, {difficulty.toLowerCase()}, {daysPerWeek} days/week
-                  </p>
+                  <div className="plan-day-meta">
+                    <span className="plan-meta-pill">{location === "GYM" ? "Gym" : "Home"}</span>
+                    <span className="plan-meta-pill">{goal.replaceAll("_", " ").toLowerCase()}</span>
+                    <span className="plan-meta-pill">{difficulty.toLowerCase()}</span>
+                    <span className="plan-meta-pill">{daysPerWeek} days/week</span>
+                  </div>
                 </div>
                 <span className="plan-day-progress">{dayProgress(activeDayPlan)}%</span>
               </div>

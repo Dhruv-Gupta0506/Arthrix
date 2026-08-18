@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { Flame, CheckCircle2, Circle } from "lucide-react";
+import { Flame, CheckCircle2, Circle, Activity, UtensilsCrossed, Beef } from "lucide-react";
 import api from "../api/axios";
 import { useAuth } from "../context/AuthContext";
 import AppLayout from "../components/layout/AppLayout";
@@ -85,41 +85,68 @@ export default function Dashboard() {
     challengesTotalToday,
   } = data;
 
+  const progressPct = challengesTotalToday
+    ? Math.round(((challengesCompletedToday ?? 0) / challengesTotalToday) * 100)
+    : 0;
+
   return (
     <AppLayout>
       <div className="page-stack">
-        <div className="dashboard-greeting">
-          {profilePictureUrl && (
-            <img src={profilePictureUrl} alt={userName} className="dashboard-avatar" />
-          )}
-          <div>
-            <h1 className="dashboard-name">Hey, {userName?.split(" ")[0] ?? "there"}</h1>
-            <p className="dashboard-goal">Goal: {fitnessGoal?.replaceAll("_", " ") ?? "—"}</p>
+        {/* Greeting banner */}
+        <div className="dashboard-banner entrance">
+          <div className="dashboard-banner-glow" />
+          <div className="relative flex items-center gap-4">
+            {profilePictureUrl && (
+              <div className="dashboard-avatar-ring">
+                <img src={profilePictureUrl} alt={userName} className="dashboard-avatar-img" />
+              </div>
+            )}
+            <div>
+              <h1 className="dashboard-name">Hey, {userName?.split(" ")[0] ?? "there"}</h1>
+              <p className="dashboard-goal">Goal: {fitnessGoal?.replaceAll("_", " ") ?? "—"}</p>
+            </div>
+          </div>
+          <div className="dashboard-streak-chip">
+            <Flame className="h-4 w-4 text-ember" />
+            <span className="dashboard-streak-value">
+              {currentStreak ?? 0} day{currentStreak === 1 ? "" : "s"}
+            </span>
           </div>
         </div>
 
+        {/* Stats */}
         <div className="stat-grid">
           <div className="card-stat">
+            <div className="stat-card-icon">
+              <Activity className="h-4 w-4" />
+            </div>
             <span className="card-stat-value">{bmi ? bmi.toFixed(1) : "—"}</span>
             <span className="card-stat-label">BMI</span>
           </div>
           <div className="card-stat">
+            <div className="stat-card-icon">
+              <UtensilsCrossed className="h-4 w-4" />
+            </div>
             <span className="card-stat-value">{dailyCalorieGoal ?? "—"}</span>
             <span className="card-stat-label">Calorie Goal</span>
           </div>
           <div className="card-stat">
+            <div className="stat-card-icon">
+              <Beef className="h-4 w-4" />
+            </div>
             <span className="card-stat-value">{dailyProteinGoal ?? "—"}g</span>
             <span className="card-stat-label">Protein Goal</span>
           </div>
           <div className="card-stat">
-            <span className="card-stat-value stat-value-row">
-              <Flame className="stat-icon-flame" />
-              {currentStreak ?? 0}
-            </span>
+            <div className="stat-card-icon-ember">
+              <Flame className="h-4 w-4" />
+            </div>
+            <span className="card-stat-value">{currentStreak ?? 0}</span>
             <span className="card-stat-label">Day Streak</span>
           </div>
         </div>
 
+        {/* Today's challenges */}
         <div className="card-flat">
           <div className="challenges-panel-header">
             <h2 className="challenges-panel-title">Today's Challenges</h2>
@@ -127,6 +154,11 @@ export default function Dashboard() {
               {challengesCompletedToday ?? 0}/{challengesTotalToday ?? 0} done
             </span>
           </div>
+
+          <div className="challenge-progress-track mb-5">
+            <div className="challenge-progress-fill" style={{ width: `${progressPct}%` }} />
+          </div>
+
           <div className="challenge-list">
             {(todayChallenges ?? []).map((c) => (
               <button

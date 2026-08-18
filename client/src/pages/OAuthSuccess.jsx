@@ -37,7 +37,11 @@ export default function OAuthSuccess() {
 
   if (error) {
     return (
-      <div className="page-shell flex flex-col items-center justify-center gap-4 text-center">
+      <div className="page-shell flex flex-col items-center justify-center gap-4 px-5 text-center">
+        <div className="landing-logo">
+          <span className="landing-logo-mark">A</span>
+          <span className="landing-logo-text">ARTHRIX</span>
+        </div>
         <p className="text-ember">{error}</p>
         <button onClick={() => navigate("/")} className="btn-secondary">
           Back to login
@@ -47,7 +51,11 @@ export default function OAuthSuccess() {
   }
 
   return (
-    <div className="page-shell flex flex-col items-center justify-center gap-3">
+    <div className="page-shell flex flex-col items-center justify-center gap-4">
+      <div className="landing-logo">
+        <span className="landing-logo-mark">A</span>
+        <span className="landing-logo-text">ARTHRIX</span>
+      </div>
       <div className="h-10 w-10 animate-spin rounded-full border-2 border-border border-t-volt" />
       <p className="text-sm text-ink-muted">Signing you in...</p>
     </div>

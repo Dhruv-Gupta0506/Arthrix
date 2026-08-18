@@ -55,10 +55,12 @@ export default function Favorites() {
 
         <div className="tab-row">
           <button onClick={() => setTab("workouts")} className={tab === "workouts" ? "tab-btn-active" : "tab-btn"}>
-            <Dumbbell className="mr-1.5 inline h-4 w-4" /> Workouts ({workouts.length})
+            <Dumbbell className="mr-1.5 inline h-4 w-4" /> Workouts
+            <span className="fav-tab-count">({workouts.length})</span>
           </button>
           <button onClick={() => setTab("meals")} className={tab === "meals" ? "tab-btn-active" : "tab-btn"}>
-            <Utensils className="mr-1.5 inline h-4 w-4" /> Meals ({meals.length})
+            <Utensils className="mr-1.5 inline h-4 w-4" /> Meals
+            <span className="fav-tab-count">({meals.length})</span>
           </button>
         </div>
 
@@ -74,7 +76,9 @@ export default function Favorites() {
             {tab === "workouts"
               ? workouts.map((w) => (
                   <div key={w.id} className="card-clickable" onClick={() => navigate(`/workouts/${w.id}`)}>
-                    <span className="badge-neutral">{w.difficulty}</span>
+                    <div className="item-card-header">
+                      <span className="badge-neutral">{w.difficulty}</span>
+                    </div>
                     <h3 className="item-card-title">{w.name}</h3>
                     <p className="item-card-desc">{stripHtml(w.description)}</p>
                     <div className="item-meta-row">
@@ -85,7 +89,9 @@ export default function Favorites() {
                 ))
               : meals.map((m) => (
                   <div key={m.id} className="card-clickable" onClick={() => navigate(`/meals/${m.id}`)}>
-                    <span className="badge-neutral">{m.mealType}</span>
+                    <div className="item-card-header">
+                      <span className="badge-neutral">{m.mealType}</span>
+                    </div>
                     <h3 className="item-card-title">{m.name}</h3>
                     <p className="item-card-desc">{stripHtml(m.description)}</p>
                     <div className="item-meta-row">

@@ -16,7 +16,6 @@ import Chatbot from "./pages/Chatbot";
 import Profile from "./pages/Profile";
 import Settings from "./pages/Settings";
 
-
 function App() {
   return (
     <Routes>
@@ -45,8 +44,12 @@ function App() {
       <Route
         path="*"
         element={
-          <div className="page-shell flex flex-col items-center justify-center gap-4 text-center">
-            <h1 className="text-4xl">404</h1>
+          <div className="page-shell flex flex-col items-center justify-center gap-4 px-5 text-center">
+            <div className="landing-logo">
+              <span className="landing-logo-mark">A</span>
+              <span className="landing-logo-text">ARTHRIX</span>
+            </div>
+            <p className="notfound-code">404</p>
             <p className="text-ink-muted">This page doesn't exist.</p>
             <a href="/" className="btn-primary">Back home</a>
           </div>

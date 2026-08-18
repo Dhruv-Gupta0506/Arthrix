@@ -1,285 +1,72 @@
-/* ============================================================
-   ARTHRIX — REUSABLE COMPONENT CLASSES (Tailwind v4)
-   RULE: any class referenced inside another class's @apply MUST
-   be declared with @utility. Plain @layer components classes
-   can only be used directly in JSX, never inside another @apply.
-============================================================ */
+@import "tailwindcss";
+@import url('https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;600;700&family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap');
 
-@utility btn {
-  @apply inline-flex items-center justify-center gap-2 rounded-full px-6 py-3
-         font-display text-sm font-semibold tracking-wide transition-all duration-200
-         disabled:opacity-40 disabled:cursor-not-allowed;
-}
-@utility btn-primary {
-  @apply btn bg-volt text-void hover:bg-volt-dim
-         lg:hover:shadow-glow lg:hover:-translate-y-0.5;
-}
-@utility btn-secondary {
-  @apply btn bg-surface-hi text-ink border border-border
-         hover:border-volt/50 hover:text-volt;
-}
-@utility btn-ghost { @apply btn bg-transparent text-ink-muted hover:text-ink; }
-@utility btn-danger { @apply btn bg-ember text-void hover:bg-ember-dim; }
+@theme {
+  /* Colors */
+  --color-void: #0b0d10;
+  --color-surface: #14171c;
+  --color-surface-hi: #1c2128;
+  --color-border: #262b33;
+  --color-volt: #d4ff3f;
+  --color-volt-dim: #a8cc2e;
+  --color-ember: #ff5b39;
+  --color-ember-dim: #cc4a2e;
+  --color-ink: #f5f7fa;
+  --color-ink-muted: #8b93a1;
+  --color-ink-faint: #565d69;
 
-@utility card {
-  @apply rounded-2xl border border-border bg-surface p-5 shadow-card
-         transition-all duration-200 lg:hover:border-volt/30 lg:hover:-translate-y-1;
-}
-@utility card-flat { @apply rounded-2xl border border-border bg-surface p-5; }
+  /* Fonts */
+  --font-display: "Space Grotesk", sans-serif;
+  --font-body: "Inter", sans-serif;
+  --font-mono: "JetBrains Mono", monospace;
 
-@utility badge {
-  @apply inline-flex items-center gap-1 rounded-full px-3 py-1 text-xs font-semibold
-         uppercase tracking-wide;
-}
+  /* Shadows */
+  --shadow-glow: 0 0 24px -4px rgba(212, 255, 63, 0.35);
+  --shadow-glow-ember: 0 0 24px -4px rgba(255, 91, 57, 0.35);
+  --shadow-card: 0 4px 24px -8px rgba(0, 0, 0, 0.5);
 
-@utility input-field {
-  @apply w-full rounded-xl border border-border bg-surface-hi px-4 py-3 text-ink
-         placeholder:text-ink-faint outline-none transition-colors focus:border-volt/60;
-}
-@utility select-field { @apply input-field appearance-none; }
-
-@utility nav-link {
-  @apply text-sm font-medium text-ink-muted transition-colors hover:text-ink;
+  /* Animations — float / fade-in-up / pulse-glow stay lg:-only in
+     index.css (ambient motion, skipped on mobile for perf).
+     marquee + draw-line are cheap transform/stroke-offset only,
+     safe to run everywhere. */
+  --animate-float: float 4s ease-in-out infinite;
+  --animate-fade-in-up: fade-in-up 0.6s ease-out both;
+  --animate-pulse-glow: pulse-glow 2.5s ease-in-out infinite;
+  --animate-shimmer: shimmer 2s linear infinite;
+  --animate-marquee: marquee 26s linear infinite;
+  --animate-draw-line: draw-line 1.4s ease-out 0.2s both;
 }
 
-@utility tab-btn {
-  @apply px-4 py-2 text-sm font-medium text-ink-muted transition-colors border-b-2 border-transparent hover:text-ink;
+@keyframes float {
+  0%, 100% { transform: translateY(0px); }
+  50% { transform: translateY(-10px); }
+}
+@keyframes fade-in-up {
+  0% { opacity: 0; transform: translateY(16px); }
+  100% { opacity: 1; transform: translateY(0); }
+}
+@keyframes pulse-glow {
+  0%, 100% { box-shadow: 0 0 0px rgba(212, 255, 63, 0); }
+  50% { box-shadow: 0 0 32px rgba(212, 255, 63, 0.35); }
+}
+@keyframes shimmer {
+  0% { background-position: -200% 0; }
+  100% { background-position: 200% 0; }
+}
+@keyframes marquee {
+  from { transform: translateX(0); }
+  to { transform: translateX(-50%); }
+}
+@keyframes draw-line {
+  from { stroke-dashoffset: 400; }
+  to { stroke-dashoffset: 0; }
 }
 
-@layer base {
-  h1, h2, h3, h4 {
-    @apply font-display text-ink;
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: 0.001ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.001ms !important;
+    scroll-behavior: auto !important;
   }
-}
-
-@layer components {
-
-  /* ---------- Onboarding ---------- */
-  .onboarding-shell {
-    @apply flex min-h-screen items-center justify-center bg-void px-5 py-10;
-  }
-  .onboarding-card { @apply w-full max-w-2xl; }
-  .onboarding-title { @apply font-display text-2xl font-bold; }
-  .onboarding-subtitle { @apply mt-1 text-sm text-ink-muted; }
-  .onboarding-form { @apply mt-6; }
-  .onboarding-actions { @apply col-span-full mt-2; }
-  .onboarding-error { @apply col-span-full text-sm text-ember; }
-
-  .plan-exercise-actions { @apply flex shrink-0 items-center gap-3; }
-
-  /* ---------- Meal Plan ---------- */
-  .meal-plan-body { @apply mt-6 flex flex-col gap-8; }
-  .meal-category-section { @apply flex flex-col gap-4; }
-  .meal-category-title { @apply font-display text-lg font-semibold; }
-  .meal-option-grid { @apply grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3; }
-
-  .meal-option-card {
-    @apply flex cursor-pointer flex-col gap-3 rounded-2xl border border-border bg-surface p-5
-           transition-all duration-200 hover:border-volt/30;
-  }
-  .meal-option-card-selected {
-    @apply flex cursor-pointer flex-col gap-3 rounded-2xl border border-volt bg-volt/5 p-5
-           transition-all duration-200;
-  }
-  .meal-option-header { @apply flex items-start justify-between gap-2; }
-  .meal-option-title { @apply font-display text-base font-semibold; }
-  .meal-option-desc { @apply text-sm text-ink-muted; }
-  .meal-macro-row { @apply flex flex-wrap items-center gap-3 text-xs text-ink-faint; }
-  .meal-view-link {
-    @apply flex w-fit items-center gap-1 text-xs font-medium text-volt hover:text-volt-dim;
-  }
-
-  .diet-toggle-row { @apply flex items-end gap-2; }
-
-  
-
-  /* ---------- Weekly Plan ---------- */
-  .plan-header { @apply mb-2; }
-  .plan-form { @apply flex flex-col gap-4; }
-  .plan-form-grid { @apply grid grid-cols-2 gap-4 lg:grid-cols-4; }
-  .plan-form-actions { @apply flex items-center gap-3; }
-  .plan-body { @apply mt-6 flex flex-col gap-4; }
-  .plan-day-card { @apply flex flex-col gap-4; }
-  .plan-day-header { @apply flex items-start justify-between; }
-  .plan-day-title { @apply font-display text-lg font-semibold; }
-  .plan-day-meta { @apply mt-1 text-xs text-ink-muted; }
-  .plan-day-progress { @apply font-mono text-lg font-semibold text-volt; }
-  .plan-exercise-list { @apply flex flex-col gap-2; }
-  .plan-exercise-item {
-    @apply flex cursor-pointer items-center justify-between gap-4 rounded-xl border border-border
-           bg-surface-hi px-4 py-3 transition-colors hover:border-volt/30;
-  }
-  .plan-exercise-info { @apply flex-1; }
-  .plan-exercise-title { @apply text-sm font-medium text-ink; }
-  .plan-exercise-title-done { @apply text-sm font-medium text-ink-muted line-through; }
-  .plan-exercise-desc { @apply mt-1 text-xs text-ink-faint; }
-  .plan-mark-btn { @apply btn-secondary shrink-0 px-3 py-2 text-xs; }
-  /* ---------- Layout ---------- */
-  .page-shell { @apply min-h-screen bg-void; }
-  .container-arthrix { @apply mx-auto w-full max-w-7xl px-5 sm:px-8 lg:px-10; }
-  .section { @apply py-14 lg:py-24; }
-  .grid-bg {
-    background-image:
-      linear-gradient(rgba(255, 255, 255, 0.03) 1px, transparent 1px),
-      linear-gradient(90deg, rgba(255, 255, 255, 0.03) 1px, transparent 1px);
-    background-size: 40px 40px;
-  }
-  .page-stack { @apply flex flex-col gap-8; }
-  .content-stack { @apply flex flex-col gap-6; }
-
-  /* ---------- Buttons (built from @utility btn-* above, safe) ---------- */
-  .back-link { @apply btn-ghost mb-6 px-0; }
-  .toggle-btn { @apply btn-secondary; }
-  .toggle-btn-active { @apply btn-primary; }
-  .toggle-row { @apply flex gap-2; }
-  .chat-send-btn { @apply btn-primary px-4 py-3; }
-
-  /* ---------- Cards (built from @utility card / card-flat, safe) ---------- */
-  .card-stat { @apply card flex flex-col gap-1; }
-  .card-stat-value { @apply font-mono text-3xl font-semibold text-volt; }
-  .card-stat-label { @apply text-xs uppercase tracking-widest text-ink-muted; }
-  .card-clickable { @apply card cursor-pointer; }
-  .streak-banner { @apply card-flat flex items-center justify-between; }
-
-  /* ---------- Badges ---------- */
-  .badge-beginner { @apply badge bg-volt/15 text-volt; }
-  .badge-intermediate { @apply badge bg-ember/15 text-ember; }
-  .badge-advanced { @apply badge bg-red-500/15 text-red-400; }
-  .badge-neutral { @apply badge bg-surface-hi text-ink-muted; }
-  .coming-soon-badge { @apply badge bg-surface text-ink-faint; }
-
-  /* ---------- Inputs ---------- */
-  .select-inline { @apply select-field w-auto; }
-  .label-field { @apply mb-1.5 block text-xs font-semibold uppercase tracking-widest text-ink-muted; }
-  .form-grid { @apply grid grid-cols-1 gap-5 sm:grid-cols-2; }
-  .form-actions { @apply mt-6 flex items-center gap-3; }
-  .form-section-title { @apply mb-4 text-lg font-semibold; }
-
-  /* ---------- Nav ---------- */
-  .navbar { @apply sticky top-0 z-50 border-b border-border/60 bg-void/80 backdrop-blur-md; }
-  .nav-link-active { @apply nav-link text-volt; }
-
-  /* ---------- Loading / Empty / Error states ---------- */
-  .skeleton { @apply animate-pulse rounded-xl bg-surface-hi; }
-  .empty-state {
-    @apply flex flex-col items-center justify-center gap-3 rounded-2xl border border-dashed
-           border-border py-16 text-center text-ink-muted;
-  }
-  .error-state {
-    @apply flex flex-col items-center justify-center gap-3 rounded-2xl border border-ember/30
-           bg-ember/5 py-10 text-center text-ember;
-  }
-
-  /* ---------- Chat bubbles ---------- */
-  .bubble-user { @apply ml-auto max-w-[80%] rounded-2xl rounded-br-sm bg-volt text-void px-4 py-2.5 text-sm; }
-  .bubble-ai { @apply mr-auto max-w-[80%] rounded-2xl rounded-bl-sm bg-surface-hi text-ink px-4 py-2.5 text-sm; }
-  .chat-shell { @apply flex h-[70vh] flex-col rounded-2xl border border-border bg-surface; }
-  .chat-scroll { @apply flex-1 space-y-3 overflow-y-auto p-5; }
-  .chat-input-row { @apply flex items-center gap-3 border-t border-border p-4; }
-  .chat-empty { @apply flex h-full flex-col items-center justify-center gap-2 text-center text-ink-muted; }
-
-  /* ---------- Desktop-only motion ---------- */
-  .hover-float { @apply lg:hover:animate-float; }
-  .entrance { @apply lg:animate-fade-in-up; }
-  .glow-pulse { @apply lg:animate-pulse-glow; }
-
-  /* ---------- Dashboard ---------- */
-  .dashboard-greeting { @apply flex items-center gap-4; }
-  .dashboard-avatar { @apply h-14 w-14 rounded-full border border-border; }
-  .dashboard-name { @apply text-2xl font-bold; }
-  .dashboard-goal { @apply text-sm text-ink-muted; }
-
-  .stat-grid { @apply grid grid-cols-2 gap-4 lg:grid-cols-4; }
-  .stat-value-row { @apply flex items-center gap-1.5; }
-  .stat-icon-flame { @apply h-6 w-6 text-ember; }
-
-  .challenges-panel-header { @apply mb-4 flex items-center justify-between; }
-  .challenges-panel-title { @apply text-lg font-semibold; }
-  .challenges-panel-count { @apply text-sm text-ink-muted; }
-  .challenge-list { @apply flex flex-col gap-2; }
-  .challenge-item {
-    @apply flex items-center gap-3 rounded-xl border border-border bg-surface-hi px-4 py-3
-           text-left transition-colors disabled:cursor-default hover:border-volt/30;
-  }
-  .challenge-icon { @apply h-5 w-5 shrink-0; }
-  .challenge-title { @apply text-sm text-ink; }
-  .challenge-title-done { @apply text-sm text-ink-muted line-through; }
-  .challenge-description { @apply text-xs text-ink-faint; }
-
-  .streak-banner-value { @apply flex items-center gap-2 text-3xl font-bold text-ember; }
-  .streak-banner-label { @apply text-xs uppercase tracking-widest text-ink-muted; }
-
-  .recommend-grid { @apply grid grid-cols-1 gap-5 lg:grid-cols-2; }
-  .recommend-label { @apply mb-3 flex items-center gap-2; }
-  .recommend-label-text { @apply text-xs font-semibold uppercase tracking-widest; }
-  .recommend-title { @apply font-display text-lg font-semibold; }
-  .recommend-description { @apply mt-1 text-sm text-ink-muted; }
-
-  .icon-volt { @apply text-volt; }
-  .icon-ember { @apply text-ember; }
-
-  /* ---------- Workouts / Meals list pages ---------- */
-  .page-header-row { @apply flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between; }
-  .page-title { @apply text-2xl font-bold; }
-  .filter-group { @apply flex gap-3; }
-
-  .item-grid { @apply grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-3; }
-  .item-card-header { @apply mb-3 flex items-start justify-between; }
-  .item-card-title { @apply font-display text-lg font-semibold; }
-  .item-card-desc { @apply mt-1 line-clamp-2 text-sm text-ink-muted; }
-  .item-meta-row { @apply mt-4 flex items-center gap-4 text-xs text-ink-faint; }
-  .item-meta { @apply flex items-center gap-1; }
-
-  .favorite-btn { @apply text-ink-muted transition-colors hover:text-ember; }
-  .icon-favorite { @apply h-5 w-5; }
-  .icon-favorite-active { @apply h-5 w-5 fill-ember text-ember; }
-  .icon-favorite-lg { @apply h-6 w-6; }
-  .icon-favorite-lg-active { @apply h-6 w-6 fill-ember text-ember; }
-
-  /* ---------- Detail pages (Workout / Meal) ---------- */
-  .detail-tag-row { @apply flex flex-wrap items-center gap-2; }
-  .detail-header-row { @apply flex items-start justify-between; }
-  .detail-title { @apply mt-4 font-display text-2xl font-bold; }
-  .detail-description { @apply mt-3 text-ink-muted; }
-  .detail-stats-row { @apply mt-6 flex gap-6 border-t border-border pt-6; }
-  .detail-stat { @apply flex items-center gap-2; }
-  .detail-stat-value { @apply font-mono text-lg font-semibold; }
-  .detail-stat-label { @apply text-xs text-ink-muted; }
-  .macro-grid { @apply mt-6 grid grid-cols-2 gap-4 border-t border-border pt-6 sm:grid-cols-4; }
-
-  /* ---------- Rich text (backend HTML descriptions) ---------- */
-  .rich-text { @apply text-sm text-ink-muted; }
-  .rich-text p { @apply mb-3 leading-relaxed; }
-  .rich-text ol { @apply ml-5 list-decimal space-y-1.5; }
-  .rich-text ul { @apply ml-5 list-disc space-y-1.5; }
-  .rich-text li { @apply text-ink-muted; }
-
-  /* ---------- Favorites tabs ---------- */
-  .tab-row { @apply flex gap-2 border-b border-border; }
-  .tab-btn-active { @apply tab-btn text-volt border-volt; }
-
-  /* ---------- Profile / Settings forms ---------- */
-  .coming-soon-row { @apply flex items-center justify-between rounded-xl border border-border bg-surface-hi px-4 py-3; }
-  .coming-soon-label { @apply text-sm text-ink; }
-
-  /* ---------- Analytics ---------- */
-  .analytics-grid { @apply grid grid-cols-2 gap-4 lg:grid-cols-3; }
-
-  .confirm-overlay { @apply fixed inset-0 z-[100] flex items-center justify-center bg-void/80 p-5; }
-  .confirm-box { @apply w-full max-w-sm rounded-2xl border border-border bg-surface p-6; }
-  .confirm-title { @apply text-lg font-semibold; }
-  .confirm-description { @apply mt-2 text-sm text-ink-muted; }
-  .confirm-actions { @apply mt-6 flex justify-end gap-3; }
-  .bubble-ai p + p { @apply mt-2; }
-
-  .bubble-ai ol { @apply ml-4 list-decimal space-y-1; }
-  .bubble-ai ul { @apply ml-4 list-disc space-y-1; }
-  .bubble-ai p + p, .bubble-ai ol, .bubble-ai ul { @apply mt-2; }
-  .error-boundary-title { @apply text-2xl font-bold; }
-
-  .chat-exercise-item { @apply mt-2; }
-  .chat-exercise-heading { @apply font-semibold text-ink; }
-  .chat-exercise-number { @apply text-volt; }
-  .bubble-ai ul { @apply ml-4 mt-1 list-disc space-y-1 text-ink-muted; }
-  .bubble-ai p + p, .bubble-ai .chat-exercise-item + .chat-exercise-item { @apply mt-3; }
 }

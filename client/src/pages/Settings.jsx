@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react";
+import { UserCog, CalendarDays, UserRound, Ruler, Scale, Utensils, Target, Sliders } from "lucide-react";
 import api from "../api/axios";
 import { useAuth } from "../context/AuthContext";
 import AppLayout from "../components/layout/AppLayout";
@@ -68,41 +69,45 @@ export default function Settings() {
         <h1 className="page-title">Settings</h1>
 
         <form onSubmit={handleSave} className="card-flat">
-          <h2 className="form-section-title">Account Details</h2>
+          <div className="form-section-header">
+            <span className="form-section-icon"><UserCog className="h-4 w-4" /></span>
+            <h2 className="form-section-title">Account Details</h2>
+          </div>
+
           <div className="form-grid">
             <div>
-              <label className="label-field">Age</label>
+              <label className="plan-form-label-row"><CalendarDays className="h-3.5 w-3.5" /> Age</label>
               <input type="number" className="input-field" value={form.age ?? ""} onChange={(e) => handleChange("age", e.target.value)} />
             </div>
             <div>
-              <label className="label-field">Gender</label>
+              <label className="plan-form-label-row"><UserRound className="h-3.5 w-3.5" /> Gender</label>
               <select className="select-field" value={form.gender ?? ""} onChange={(e) => handleChange("gender", e.target.value)}>
                 {GENDER_OPTIONS.map((g) => <option key={g} value={g}>{g}</option>)}
               </select>
             </div>
             <div>
-              <label className="label-field">Height (cm)</label>
+              <label className="plan-form-label-row"><Ruler className="h-3.5 w-3.5" /> Height (cm)</label>
               <input type="number" className="input-field" value={form.height ?? ""} onChange={(e) => handleChange("height", e.target.value)} />
             </div>
             <div>
-              <label className="label-field">Weight (kg)</label>
+              <label className="plan-form-label-row"><Scale className="h-3.5 w-3.5" /> Weight (kg)</label>
               <input type="number" className="input-field" value={form.weight ?? ""} onChange={(e) => handleChange("weight", e.target.value)} />
             </div>
             <div>
-              <label className="label-field">Diet Preference</label>
+              <label className="plan-form-label-row"><Utensils className="h-3.5 w-3.5" /> Diet Preference</label>
               <select className="select-field" value={form.dietPreference ?? ""} onChange={(e) => handleChange("dietPreference", e.target.value)}>
                 {DIET_OPTIONS.map((d) => <option key={d} value={d}>{d.replaceAll("_", " ")}</option>)}
               </select>
             </div>
             <div>
-              <label className="label-field">Fitness Goal</label>
+              <label className="plan-form-label-row"><Target className="h-3.5 w-3.5" /> Fitness Goal</label>
               <select className="select-field" value={form.fitnessGoal ?? ""} onChange={(e) => handleChange("fitnessGoal", e.target.value)}>
                 {FITNESS_GOAL_OPTIONS.map((g) => <option key={g} value={g}>{g.replaceAll("_", " ")}</option>)}
               </select>
             </div>
           </div>
           <div className="form-actions">
-            <button type="submit" disabled={saving} className="btn-primary">
+            <button type="submit" disabled={saving} className="btn-primary w-full sm:w-auto">
               {saving ? "Saving..." : "Save Changes"}
             </button>
             {saved && <span className="text-sm text-volt">Saved!</span>}
@@ -110,7 +115,10 @@ export default function Settings() {
         </form>
 
         <div className="card-flat">
-          <h2 className="form-section-title">More</h2>
+          <div className="form-section-header">
+            <span className="form-section-icon"><Sliders className="h-4 w-4" /></span>
+            <h2 className="form-section-title">More</h2>
+          </div>
           <div className="content-stack">
             <div className="coming-soon-row">
               <span className="coming-soon-label">Theme preference</span>

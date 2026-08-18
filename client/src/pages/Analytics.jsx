@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react";
+import { Target, CheckCircle2, TrendingUp, Flame, UtensilsCrossed, CalendarDays } from "lucide-react";
 import api from "../api/axios";
 import { useAuth } from "../context/AuthContext";
 import AppLayout from "../components/layout/AppLayout";
@@ -9,6 +10,8 @@ const formatNumber = (value) => {
   if (value === null || value === undefined) return "—";
   return Number.isInteger(value) ? value : Math.round(value * 10) / 10;
 };
+
+const STAT_ICONS = [Target, CheckCircle2, TrendingUp, Flame, UtensilsCrossed];
 
 export default function Analytics() {
   const { userId } = useAuth();
@@ -37,6 +40,16 @@ export default function Analytics() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [range, userId]);
 
+  const stats = data
+    ? [
+        { value: formatNumber(data.totalChallengesAssigned), label: "Challenges Assigned" },
+        { value: formatNumber(data.totalChallengesCompleted), label: "Challenges Completed" },
+        { value: `${formatNumber(data.completionRatePercent)}%`, label: "Completion Rate" },
+        { value: formatNumber(data.estimatedCaloriesBurned), label: "Calories Burned" },
+        { value: formatNumber(data.estimatedCaloriesConsumedTarget), label: "Calorie Target" },
+      ]
+    : [];
+
   return (
     <AppLayout>
       <div className="content-stack">
@@ -57,30 +70,23 @@ export default function Analytics() {
 
         {!loading && !error && data && (
           <>
-            <p className="challenges-panel-count">
+            <span className="analytics-range-pill">
+              <CalendarDays className="h-3.5 w-3.5" />
               {data.startDate} — {data.endDate}
-            </p>
+            </span>
             <div className="analytics-grid">
-              <div className="card-stat">
-                <span className="card-stat-value">{formatNumber(data.totalChallengesAssigned)}</span>
-                <span className="card-stat-label">Challenges Assigned</span>
-              </div>
-              <div className="card-stat">
-                <span className="card-stat-value">{formatNumber(data.totalChallengesCompleted)}</span>
-                <span className="card-stat-label">Challenges Completed</span>
-              </div>
-              <div className="card-stat">
-                <span className="card-stat-value">{formatNumber(data.completionRatePercent)}%</span>
-                <span className="card-stat-label">Completion Rate</span>
-              </div>
-              <div className="card-stat">
-                <span className="card-stat-value">{formatNumber(data.estimatedCaloriesBurned)}</span>
-                <span className="card-stat-label">Calories Burned</span>
-              </div>
-              <div className="card-stat">
-                <span className="card-stat-value">{formatNumber(data.estimatedCaloriesConsumedTarget)}</span>
-                <span className="card-stat-label">Calorie Target</span>
-              </div>
+              {stats.map(({ value, label }, i) => {
+                const Icon = STAT_ICONS[i] ?? Target;
+                return (
+                  <div key={label} className="card-stat">
+                    <div className="stat-card-icon-sm">
+                      <Icon className="h-4 w-4" />
+                    </div>
+                    <span className="card-stat-value">{value}</span>
+                    <span className="card-stat-label">{label}</span>
+                  </div>
+                );
+              })}
             </div>
           </>
         )}

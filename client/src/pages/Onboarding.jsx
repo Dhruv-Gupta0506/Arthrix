@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
+import { CalendarDays, UserRound, Ruler, Scale, Utensils, Target } from "lucide-react";
 import api from "../api/axios";
 import { useAuth } from "../context/AuthContext";
 import { GENDER_OPTIONS, DIET_OPTIONS, FITNESS_GOAL_OPTIONS } from "../lib/utils";
@@ -53,7 +54,15 @@ export default function Onboarding() {
 
   return (
     <div className="onboarding-shell">
+      <div className="hero-grid" />
+      <div className="onboarding-glow" />
+
       <div className="onboarding-card card-flat">
+        <div className="onboarding-badge-row">
+          <span className="landing-logo-mark">A</span>
+          <span className="landing-logo-text">ARTHRIX</span>
+        </div>
+
         <h1 className="onboarding-title">Let's set up your profile</h1>
         <p className="onboarding-subtitle">
           A few quick details so Arthrix can personalize your plan.
@@ -61,7 +70,7 @@ export default function Onboarding() {
 
         <form onSubmit={handleSubmit} className="form-grid onboarding-form">
           <div>
-            <label className="label-field">Age</label>
+            <label className="plan-form-label-row"><CalendarDays className="h-3.5 w-3.5" /> Age</label>
             <input
               type="number"
               className="input-field"
@@ -72,7 +81,7 @@ export default function Onboarding() {
           </div>
 
           <div>
-            <label className="label-field">Gender</label>
+            <label className="plan-form-label-row"><UserRound className="h-3.5 w-3.5" /> Gender</label>
             <select
               className="select-field"
               value={form.gender}
@@ -85,7 +94,7 @@ export default function Onboarding() {
           </div>
 
           <div>
-            <label className="label-field">Height (cm)</label>
+            <label className="plan-form-label-row"><Ruler className="h-3.5 w-3.5" /> Height (cm)</label>
             <input
               type="number"
               className="input-field"
@@ -96,7 +105,7 @@ export default function Onboarding() {
           </div>
 
           <div>
-            <label className="label-field">Weight (kg)</label>
+            <label className="plan-form-label-row"><Scale className="h-3.5 w-3.5" /> Weight (kg)</label>
             <input
               type="number"
               className="input-field"
@@ -107,7 +116,7 @@ export default function Onboarding() {
           </div>
 
           <div>
-            <label className="label-field">Diet Preference</label>
+            <label className="plan-form-label-row"><Utensils className="h-3.5 w-3.5" /> Diet Preference</label>
             <select
               className="select-field"
               value={form.dietPreference}
@@ -120,7 +129,7 @@ export default function Onboarding() {
           </div>
 
           <div>
-            <label className="label-field">Fitness Goal</label>
+            <label className="plan-form-label-row"><Target className="h-3.5 w-3.5" /> Fitness Goal</label>
             <select
               className="select-field"
               value={form.fitnessGoal}
@@ -135,7 +144,7 @@ export default function Onboarding() {
           {error && <p className="onboarding-error">Couldn't save your profile. Try again.</p>}
 
           <div className="onboarding-actions">
-            <button type="submit" className="btn-primary" disabled={!isValid || saving}>
+            <button type="submit" className="btn-primary w-full sm:w-auto" disabled={!isValid || saving}>
               {saving ? "Saving..." : "Start My Journey"}
             </button>
           </div>

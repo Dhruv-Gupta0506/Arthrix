@@ -6,7 +6,11 @@ export default function ProtectedRoute() {
 
   if (loading) {
     return (
-      <div className="page-shell flex items-center justify-center">
+      <div className="page-shell flex flex-col items-center justify-center gap-4">
+        <div className="landing-logo">
+          <span className="landing-logo-mark">A</span>
+          <span className="landing-logo-text">ARTHRIX</span>
+        </div>
         <div className="h-10 w-10 animate-spin rounded-full border-2 border-border border-t-volt" />
       </div>
     );

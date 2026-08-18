@@ -68,11 +68,17 @@ export default function Challenges() {
         <h1 className="page-title">Daily Challenges</h1>
 
         <div className="streak-banner">
-          <div>
-            <p className="streak-banner-label">Current Streak</p>
-            <p className="streak-banner-value">
-              <Flame className="h-8 w-8" /> {streak} {streak === 1 ? "day" : "days"}
-            </p>
+          <div className="streak-banner-glow" />
+          <div className="relative flex items-center gap-4">
+            <div className="streak-flame-ring">
+              <Flame className="h-6 w-6 text-ember" />
+            </div>
+            <div>
+              <p className="streak-banner-label">Current Streak</p>
+              <p className="streak-banner-value">
+                {streak} {streak === 1 ? "day" : "days"}
+              </p>
+            </div>
           </div>
           <p className="challenges-panel-count">{completedCount}/{challenges.length} done today</p>
         </div>
@@ -90,7 +96,7 @@ export default function Challenges() {
               ) : (
                 <Circle className="challenge-icon text-ink-faint" />
               )}
-              <div>
+              <div className="min-w-0">
                 <p className={c.completed ? "challenge-title-done" : "challenge-title"}>{c.title}</p>
                 {c.description && <p className="challenge-description">{c.description}</p>}
               </div>
